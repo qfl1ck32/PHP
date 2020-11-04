@@ -1,0 +1,16 @@
+.bg-img {
+    background-image: url('../Images/Background.png');
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    overflow-x: hidden;
+}
+
+#recoverForm, #registerForm {
+    display: none;
+}
+
+.alert {
+    display: none;
+}
