@@ -24,7 +24,7 @@ if (online_banking)
 
 if (settings)
     settings.onclick = () => {
-        window.location.href = 'settings.php';
+        window.location.href = 'Settings.php';
     }
 
 home_button.onclick = () => {
