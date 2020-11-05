@@ -1,5 +1,5 @@
 <?php
-    include 'API/mysql.php';
+    include __DIR__ + '/API/mysql.php';
 
     session_start();
 
