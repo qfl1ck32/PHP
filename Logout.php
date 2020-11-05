@@ -7,5 +7,5 @@
     $query->bind_param('s', $_SESSION['username']);
     $query->execute();
 
-    header('location: /index.php');
+    header('location: /Index.php');
 ?>
