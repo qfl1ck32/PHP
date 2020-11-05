@@ -27,7 +27,7 @@
     <body class = 'bg-img'>
 
         <nav id = "navigation_bar" class = "navbar navbar-expand-md navbar-dark bg-blue">
-            <a href = '/Index.php' class = 'navbar-brand d-md-none font-weight-bold font-italic border border-light p-1 rounded-pill' href = '#'>myBank</a>
+            <a href = '/index.php' class = 'navbar-brand d-md-none font-weight-bold font-italic border border-light p-1 rounded-pill' href = '#'>myBank</a>
             <button class = 'navbar-toggler ml-auto' type = 'button' data-toggle = 'collapse' data-target = '#navbarSupportedContent' aria-controls = 'navbarSupportedContent' aria-expanded = 'false' aria-label = 'Toggle navigation'>
                     <span class = 'navbar-toggler-icon'></span>
             </button>
@@ -37,7 +37,7 @@
                     <ul class = 'navbar-nav mr-auto'>
 
                         <li class = 'nav-item'>
-                            <a id = "home" class = "nav-link active" href = '/Index.php'>Home</a>
+                            <a id = "home" class = "nav-link active" href = '/index.php'>Home</a>
                         </li>
 
                         <?php
@@ -48,7 +48,7 @@
                         ?>
                         
                         <li class = 'nav-item'>
-                                <a href = '/Index.php' class = 'navbar-brand mx-2 d-none d-md-inline font-weight-bold font-italic border border-light p-1 rounded-pill'>myBank</a>
+                                <a href = '/index.php' class = 'navbar-brand mx-2 d-none d-md-inline font-weight-bold font-italic border border-light p-1 rounded-pill'>myBank</a>
                         </li>
 
                         <?php
