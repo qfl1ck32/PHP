@@ -291,10 +291,6 @@ $(city).on("input", async e => {
     const data = JSON.parse(await Promise.resolve($.post('./API/location.php', { where: 'cities', stateId: stateId, substr: city.value })))
     
     createAutocomplete(data, city, cities, 'cityId')
-
-    console.log(data)
-    console.log(countryId)
-    console.log(stateId)
 })
 
 $(city).on("keydown", e => {
@@ -340,8 +336,6 @@ $(update).click(async () => {
         data.append(elem.id, elem.value)
 
     data.append('file', file.files[0])
-
-    console.log(data)
 
     const ans = JSON.parse(await Promise.resolve($.ajax({
         type: 'POST',
