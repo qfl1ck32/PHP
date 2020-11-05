@@ -1,9 +1,9 @@
 <?php
 
-    $servername = 'localhost';
-    $username = 'root';
-    $password = '';
-    $dbName = 'myBank';
+    $servername = 'eu-cdbr-west-03.cleardb.net';
+    $username = 'ba9d9921cf4199';
+    $password = '9537b747';
+    $dbName = 'heroku_fc50c5a255e2b86';
 
     $conn = new mysqli($servername, $username, $password, $dbName);
 
