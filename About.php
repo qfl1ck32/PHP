@@ -150,14 +150,17 @@
 
                                 <h6 class = 'font-italic text-left mx-2'>Here is where every piece of personal detail about you lays.</h6>
                                 <h6 class = 'font-italic text-left mx-2'>Mainly, before creating any credit card, you must fill this form out.</h6>
-                                <h6 class = 'font-italic text-left mx-2'>Every time you add any slight modification to it, an administrator will have to look into it and approve it before
+                                
+                                <h6 class = 'font-italic text-left mx-2'>After filling up all the needed data, you have to upload a picture of an identification card.
+
+                                <h6 class = 'font-italic text-left mx-2'>Also, keep in mind that every time you add any slight modification to it, an administrator will have to look into it and approve it before
                                     you'll be able to use any functionality again.</h6>
 
                                 <div class = 'container text-left'>
                                     <small class = 'small-text text-white'>Note!</small>
                                 </div>
 
-                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>Do not play in the settings tab unless needed. Obvious stuff, right?</h6>
+                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>After completing the form for the first time, try not to play in the tab unless needed. Obvious stuff, right?</h6>
                             </div>
 
                             <div id = 'onlineBankingInfo' class = 'container'>
