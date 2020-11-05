@@ -28,7 +28,7 @@
     <body class = 'bg-img'>
     
         <nav class = 'navbar navbar-expand-md navbar-dark bg-blue'>
-            <a href = '/' class = 'navbar-brand d-md-none font-weight-bold font-italic border border-light p-1 rounded-pill' href = '#'>myBank</a>
+            <a href = '/Index.php' class = 'navbar-brand d-md-none font-weight-bold font-italic border border-light p-1 rounded-pill' href = '#'>myBank</a>
             <button class = 'navbar-toggler ml-auto' type = 'button' data-toggle = 'collapse' data-target = '#navbarSupportedContent' aria-controls = 'navbarSupportedContent' aria-expanded = 'false' aria-label = 'Toggle navigation'>
                     <span class = 'navbar-toggler-icon'></span>
             </button>
@@ -40,7 +40,7 @@
                     <div class = 'navbar-nav mx-auto'>    
                         <ul class = 'navbar-nav mr-auto'>
                             <li class = 'nav-item'>
-                                <a id = 'home' class = 'nav-link' href = '#'>Home</a>
+                                <a id = 'home' class = 'nav-link' href = '/Index.php'>Home</a>
                             </li>
 
                             <?php
@@ -51,7 +51,7 @@
                             ?>
                             
                             <li class = 'nav-item'>
-                                <a href = '/' class = 'navbar-brand mx-2 d-none d-md-inline font-weight-bold font-italic border border-light p-1 rounded-pill'>myBank</a>
+                                <a href = '/Index.php' class = 'navbar-brand mx-2 d-none d-md-inline font-weight-bold font-italic border border-light p-1 rounded-pill'>myBank</a>
                             </li>
 
                             <?php
@@ -62,7 +62,7 @@
                             ?>
 
                             <li class = 'nav-item'>
-                                <a id = 'info' class = 'nav-link active' href = '#'>About</a>
+                                <a id = 'about' class = 'nav-link active' href = '#'>About</a>
                             </li>
                         </ul>
                     </div>
