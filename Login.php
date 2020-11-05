@@ -105,8 +105,8 @@
                         </li>
                         
                         <li class = 'nav-item'>
-                                <a href = '/' class = 'navbar-brand mx-2 d-md-inline font-weight-bold font-italic border border-light p-1 rounded-pill'>myBank</a>
-                            </li>
+                            <a href = '/' class = 'navbar-brand mx-2 d-none d-md-inline font-weight-bold font-italic border border-light p-1 rounded-pill'>myBank</a>
+                        </li>
 
                         <li class = 'nav-item'>
                             <a id = 'about' class = 'nav-link' href = '#'>About</a>
