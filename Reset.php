@@ -62,7 +62,7 @@
 
 
     <nav id = 'navigation_bar' class = 'navbar navbar-expand-md navbar-dark bg-blue mb-2'>
-            <a href = '/' class = 'navbar-brand d-md-none font-weight-bold font-italic border border-light p-1 rounded-pill' href = '#'>myBank</a>
+            <a href = '/Index.php' class = 'navbar-brand d-md-none font-weight-bold font-italic border border-light p-1 rounded-pill' href = '#'>myBank</a>
             <button class = 'navbar-toggler ml-auto' type = 'button' data-toggle = 'collapse' data-target = '#navbarSupportedContent' aria-controls = 'navbarSupportedContent' aria-expanded = 'false' aria-label = 'Toggle navigation'>
                     <span class = 'navbar-toggler-icon'></span>
             </button>
@@ -72,11 +72,11 @@
                     <ul class = 'navbar-nav mr-auto'>
 
                         <li class = 'nav-item'>
-                            <a id = 'home' class = 'nav-link active' href = '#'>Home</a>
+                            <a id = 'home' class = 'nav-link active' href = '/Index.php'>Home</a>
                         </li>
                         
                         <li class = 'nav-item'>
-                                <a href = '/' class = 'navbar-brand mx-2 d-md-inline font-weight-bold font-italic border border-light p-1 rounded-pill'>myBank</a>
+                                <a href = '/Index.php' class = 'navbar-brand mx-2 d-md-inline font-weight-bold font-italic border border-light p-1 rounded-pill'>myBank</a>
                             </li>
 
                         <li class = 'nav-item'>
