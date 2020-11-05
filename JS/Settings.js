@@ -248,7 +248,7 @@ const handleBlurEvent = async (elem, next, next2) => {
     }
 
     else {
-        $(elemToBad(elem)).prop('disabled', false)
+        $(next).prop('disabled', false)
         $(elemToBad(elem)).fadeOut('fast')
     }
 }
