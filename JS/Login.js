@@ -289,12 +289,10 @@ loginButton.addEventListener("click", async e => {
     const ans = await Promise.resolve($.post('./Login.php', { data: usernameEmailLogin.value, password: passwordLogin.value, remember: rememberMe.checked }))
 
     if (ans == 'true')
-        return window.location = '/'
+        return window.location = '/Index.php'
 
 
     $(loginButton).prop('disabled', true)
-
-    console.log(ans)
 
     if (!$(message).html | $(message).html != ans)
         $(message).html(ans).fadeIn('fast').removeClass('alert-info').addClass('alert-danger')
