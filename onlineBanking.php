@@ -64,7 +64,7 @@
                             ?>
 
                             <li class = 'nav-item'>
-                                <a id = 'info' class = 'nav-link' href = '#'>About</a>
+                                <a id = 'about' class = 'nav-link' href = '#'>About</a>
                             </li>
                         </ul>
                     </div>
