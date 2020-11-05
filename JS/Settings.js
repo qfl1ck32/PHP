@@ -291,6 +291,10 @@ $(city).on("input", async e => {
     const data = JSON.parse(await Promise.resolve($.post('./API/location.php', { where: 'cities', stateId: stateId, substr: city.value })))
     
     createAutocomplete(data, city, cities, 'cityId')
+
+    console.log(data)
+    console.log(countryId)
+    console.log(stateId)
 })
 
 $(city).on("keydown", e => {
