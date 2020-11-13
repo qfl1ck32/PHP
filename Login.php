@@ -36,6 +36,7 @@
                     $oldSessId = sendQuery('select sessionId from users where ' . $type . ' = ?', $usernameEmail)[0];
                     session_id($oldSessId['sessionId']);
                     session_destroy();
+                    return Status(-5, "I have disconnected the guy with sessId: " . $oldSessId . " !!!!!!!!!");
                     session_start();
                 }
 
