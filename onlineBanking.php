@@ -16,8 +16,6 @@
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-        // security element - before getting data about the credit card, first check it belongs to the user.
-
         $data = sendQuery('select type, currency, balance from creditcards where id = unhex(?) and iban = ?', $_SESSION['id'], $_POST['IBAN']);
 
         if (!isset($data[0]))
