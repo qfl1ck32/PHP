@@ -7,13 +7,6 @@
     include './API/functions.php';
     include './API/mysql.php';
 
-    $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id']);
-
-    if (session_id() != $sessId) {
-        session_destroy();
-        die(header('location: /404.php'));
-    }
-
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $data = sendQuery('select type, currency, balance from creditcards where id = unhex(?) and iban = ?', $_SESSION['id'], $_POST['IBAN']);
