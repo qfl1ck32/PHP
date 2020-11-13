@@ -4,6 +4,7 @@ const get = id => {
 
 const   createCreditCard = get('createCreditCard'),
         messageCreateCreditCard = get('messageCreateCreditCard'),
+        createCardWithCurrency = get('createCardWithCurrency'),
         
         type = get('type'),
         iban = get('IBAN'),
@@ -15,7 +16,7 @@ const   createCreditCard = get('createCreditCard'),
         transactions = get('transactions')
 
 $(createCreditCard).click(async () => {
-    const ans = JSON.parse(await Promise.resolve($.post('./API/createCreditCard.php', { currency: currency.value })))
+    const ans = JSON.parse(await Promise.resolve($.post('./API/createCreditCard.php', { currency: createCardWithCurrency.value })))
 
     console.log(ans)
 
