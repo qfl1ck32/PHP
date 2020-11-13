@@ -7,6 +7,27 @@
     include './API/functions.php';
     include './API/mysql.php';
 
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+        // security element - before getting data about the credit card, first check it belongs to the user.
+
+        $data = sendQuery('select type, currency, balance from creditcards where id = unhex(?) and iban = ?', $_SESSION['id'], $_POST['IBAN']);
+
+        if (!isset($data[0]))
+            return Status(false, "The given IBAN either does not exist or it does not belong to any of your credit cards.");
+
+        $data = $data[0];
+
+        die(json_encode(array(
+            'status' => true,
+            'type' => $data['type'],
+            'currency' => $data['currency'],
+            'balance' => $data['balance'] . ' ' . $data['currency']
+        )));
+    }
+
+    $hasSettings = sendQuery('select count(*) as c from personaldata where id = unhex(?)', $_SESSION['id'])[0]['c'];
+
     $currentCreditCards = sendQuery('select iban, type, currency, balance from creditcards where id = unhex(?);', $_SESSION['id']);
 
     $currencies = sendQuery('select name from currencies;');
@@ -120,44 +141,46 @@
             <hr class = 'mt-0'>
 
            <div class = 'row py-4'>
-               <div style = 'overflow: hidden;' class = 'col-12 col-lg-3 offset-lg-0 text-white'>
-                    <ul  style = 'max-height: 288px; overflow-y: scroll;' class = 'list-group flex-lg-column flex-row pb-2 pr-2'>
+               <?php if ($hasSettings) { ?>
+                    <div style = 'overflow: hidden;' class = 'col-12 col-lg-3 offset-lg-0 text-white'>
+                        <ul id = 'creditCardsList' style = 'max-height: 288px; overflow-y: scroll;' class = 'list-group flex-lg-column flex-row pb-2 pr-2'>
 
-                        <?php
-                            for ($i = 0; $i < sizeof($currentCreditCards); ++$i) { 
-                        ?>
+                            <?php
+                                for ($i = 0; $i < sizeof($currentCreditCards); ++$i) { 
+                            ?>
 
-                            <a href = '#' class = 'list-group-item list-group-item-action list-group-item-info border rounded text-center mr-lg-0 mr-2 <?php echo ($i == 0) ? 'active' : 'mt-lg-2 mt-sm-0'; ?>'>
+                                <a href = '#' class = 'creditCard list-group-item list-group-item-action list-group-item-info border rounded text-center mr-lg-0 mr-2 <?php echo ($i == 0) ? 'active' : 'mt-lg-2 mt-sm-0'; ?>'>
 
-                                <div class = 'row text-left'>
-                                    <div class = 'col-9'>
-                                        <div class = 'row'>
-                                            <small class = 'pre'><?php echo $currentCreditCards[$i]['type']; ?></small>
+                                    <div class = 'row text-left'>
+                                        <div class = 'col-9'>
+                                            <div class = 'row'>
+                                                <small class = 'pre'><?php echo $currentCreditCards[$i]['type']; ?></small>
+                                            </div>
+                                            <div class = 'row'>
+                                                <small class = 'text-muted'><?php echo $currentCreditCards[$i]['currency']; ?> [ <?php echo $currentCreditCards[$i]['balance']; ?> ]</small>   
+                                            </div>
                                         </div>
-                                        <div class = 'row'>
-                                            <small class = 'text-muted'><?php echo $currentCreditCards[$i]['currency']; ?> [ <?php echo $currentCreditCards[$i]['balance']; ?> ]</small>   
+                                        
+                                        <div class = 'col text-right'>
+                                            <small><img style = 'width: 10px; height: 10px;' class = 'rounded' src = <?php echo "./Images/countryFlags/" . substr($currentCreditCards[$i]['currency'], 0, 2) . ".png"; ?> ></small>
                                         </div>
                                     </div>
-                                    
-                                    <div class = 'col text-right'>
-                                        <small><img style = 'width: 10px; height: 10px;' class = 'rounded' src = <?php echo "./Images/countryFlags/" . substr($currentCreditCards[$i]['currency'], 0, 2) . ".png"; ?> ></small>
+
+                                    <div class = 'row justify-content-start mt-2 text-break-lg'>
+                                        <small class = 'IBAN' ><?php echo $currentCreditCards[$i]['iban']; ?></small>
                                     </div>
-                                </div>
+                                
+                                </a>
 
-                                <div class = 'row justify-content-start mt-2 text-break-lg'>
-                                    <small><?php echo $currentCreditCards[$i]['iban']; ?></small>
-                                </div>
-                            
-                            </a>
+                            <?php } ?>
 
-                        <?php } ?>
+                        </ul>
 
-                    </ul>
-
-                    <div class = 'container pt-4 text-center'>
-                        <button id = 'createCard' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white' data-toggle = 'modal' data-target = '#modalCenter'>Create a new credit card</button>
+                        <div class = 'container pt-4 text-center'>
+                            <button id = 'createCard' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white' data-toggle = 'modal' data-target = '#modalCenter'>Create a new credit card</button>
+                        </div>
                     </div>
-               </div>
+                <?php } ?>
 
 
                <div class = 'modal fade' id = 'modalCenter' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
@@ -178,7 +201,7 @@
                                <form>
                                    <div class = 'form-group'>
                                         <label for = 'currency'>Currency</label>
-                                        <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' name = 'currency' id = 'currency'>
+                                        <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' name = 'currency'>
                                            <?php
                                                 foreach ($currencyWithImg as $curr) {
                                                     echo "<option value = '" . $curr['name'] . "'>" . $curr['name'] . "</option>";
@@ -200,57 +223,71 @@
 
                <div class = 'col-lg border rounded offset-lg-0 mt-4 mt-lg-0 p-4 mx-4'>
 
-                    <?php
-                        if (isset($currentCreditCards[0])) {
-                    ?>
 
-                        <div class = 'd-flex justify-content-around mb-4'>
-                            <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white active' id = 'details'>Details</button>
-                            <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white' id = 'transactions'>Transactions</button>
-                        </div>
-                    
-                    <hr>
+                    <?php if ($hasSettings) { ?>
+                        <?php if (isset($currentCreditCards[0])) { ?>
 
-                    <div class = 'container' id = 'creditCardMainData'>
-                            <div class = 'text-white'>
-                                <h5 class = 'font-weight-bold'>Account type</h5>
-                                <h6 class = 'ml-2 font-italic' id = 'accountType'><?php echo $currentCreditCards[0]['type']; ?></h6>
+                            <div class = 'd-flex justify-content-around mb-4'>
+                                <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white active' id = 'details'>Details</button>
+                                <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white' id = 'transactions'>Transactions</button>
                             </div>
-
-                            <div class = 'text-white mt-4'>
-                                <h5 class = 'font-weight-bold'>IBAN</h5>
-                                <h6 class = 'ml-2 font-italic' id = 'IBAN'><?php echo $currentCreditCards[0]['iban']; ?></h6>
-                            </div>
-
-                            <div class = 'text-white mt-4'>
-                                <h5 class = 'font-weight-bold'>Currency</h5>
-                                <h6 class = 'ml-2 font-italic' id = 'currency'><?php echo $currentCreditCards[0]['currency']; ?></h6>
-                            </div>
-
+                        
                             <hr>
 
-                            <div class = 'text-white mt-4'>
-                                <h5 class = 'font-weight-bold'>Available balance</h5>
-                                <h6 class = 'ml-2 font-italic' id = 'balance'><?php echo $currentCreditCards[0]['balance'] . ' ' . $currentCreditCards[0]['currency']; ?></h6>
+                            <div class = 'container' id = 'creditCardMainData'>
+                                    <div class = 'text-white'>
+                                        <h5 class = 'font-weight-bold'>Account type</h5>
+                                        <h6 class = 'ml-2 font-italic' id = 'accountType'><?php echo $currentCreditCards[0]['type']; ?></h6>
+                                    </div>
+
+                                    <div class = 'text-white mt-4'>
+                                        <h5 class = 'font-weight-bold'>IBAN</h5>
+                                        <h6 class = 'ml-2 font-italic' id = 'IBAN'><?php echo $currentCreditCards[0]['iban']; ?></h6>
+                                    </div>
+
+                                    <div class = 'text-white mt-4'>
+                                        <h5 class = 'font-weight-bold'>Currency</h5>
+                                        <h6 class = 'ml-2 font-italic' id = 'currency'><?php echo $currentCreditCards[0]['currency']; ?></h6>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class = 'text-white mt-4'>
+                                        <h5 class = 'font-weight-bold'>Available balance</h5>
+                                        <h6 class = 'ml-2 font-italic' id = 'balance'><?php echo $currentCreditCards[0]['balance'] . ' ' . $currentCreditCards[0]['currency']; ?></h6>
+                                    </div>
+
                             </div>
+
+                            <?php } else { ?>
+
+                                <div class = 'container text-center text-white'>
+
+                                    <h4>Uh-oh!</h4>
+
+                                    <hr>
+
+                                        <h6>It seems like you got no credit cards.</h6>
+
+                                        <h6>You can create a new one using the <i><b>Create a new credit card</b></i> button.</h6>
+                                    
+                                </div>
+
+                            <?php } ?>
+
+                    <?php } else { ?>
+
+                        <div class = 'container text-center text-white'>
+                            <h4>Uh-oh!</h4>
+
+                            <h6>It seems like you haven't put any information in the settings tab.</h6>
+                            <h6>Please fill in the needed data and wait for an administrator to approve the changes.</h6>
 
                         </div>
 
-                        <?php } else { ?>
-
-                            <div class = 'container text-center text-white'>
+                    <?php } ?>
 
 
-                                <h4>Uh-oh!</h4>
-
-                                <hr>
-                                
-                                <h6>It seems like you got no credit cards.</h6>
-
-                                <h6>You can create a new one using the <i><b>Create a new credit card</b></i> button.</h6>
-                            </div>
-
-                        <?php } ?>
                </div>
            </div>
        </div>
