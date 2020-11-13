@@ -12,6 +12,11 @@
 
     $image = file_get_contents($_FILES['file']['tmp_name']);
 
+    $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+
+    if (!($ext == 'jpeg' || $ext == 'png' || $ext == 'jpg'))
+        return Status(false, "You should have entered a valid image.");
+
     $existsPending = sendQuery('select count(*) as c from pendingpersonaldata where id = unhex(?)', $_SESSION['id'])[0];
 
     if ($existsPending['c'])

@@ -8,14 +8,14 @@
         <meta charset = "UTF-8">
         <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
 
-        <link rel = "stylesheet" type = "text/css" href = "CSS/Home.css">
+        <link rel = "stylesheet" type = "text/css" href = "CSS/Index.css">
 
         <link rel = 'stylesheet' type = 'text/css' href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css' integrity = 'sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2' crossorigin = 'anonymous'>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         
         <link rel = "icon" href = "Images/Icon.png">
 
-        <script src = "JS/Home.js" defer></script>
+        <script src = "JS/Index.js" defer></script>
         <script src = "JS/Buttons.js" defer></script>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" type="text/javascript"></script>
@@ -68,11 +68,18 @@
 
         <div class = "container-fluid text-right my-4">
             <?php
+                if (isset($_SESSION['admin']) && $_SESSION['admin'])
+                    echo '<button id = "admin" class = "btn btn-outline-primary btn-sm border rounded-pill text-white mr-2">Administrate accounts</button>';
+
                 if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'])
                     echo '<button id = "logout" class = "btn btn-outline-primary btn-sm border rounded-pill text-white">Logout</button>';
                 else
                     echo '<button id = "login" class = "btn btn-outline-primary btn-sm border rounded-pill text-white">Sign in</button>';
             ?>
+        </div>
+
+        <div class = 'container bg-info'>
+            Hi there!
         </div>
 
     </body>

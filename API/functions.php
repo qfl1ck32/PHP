@@ -46,9 +46,9 @@
                 echo 'src = "data:image/jpg;base64,' . base64_encode($data[$what]) . '"';
             else
                 echo 'value = "' . $data[$what] . '" ';
-        else
-            if ($what == 'state' || $what == 'city')
-                echo 'disabled';
+        // else
+        //     if ($what == 'state' || $what == 'city')
+        //         echo 'disabled';
     }
 
     function trySetGender($val) {

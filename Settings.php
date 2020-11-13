@@ -95,8 +95,14 @@
             </div>
         </nav>
 
-        <div class = 'container-fluid text-right'>
-            <button id = 'logout' class = 'btn btn-outline-primary btn-sm border rounded-pill my-4 text-white'>Logout</button>
+        <div class = 'container-fluid text-right my-4'>
+            <?php
+                if (isset($_SESSION['admin']) && $_SESSION['admin'])
+                    echo '<button id = "admin" class = "btn btn-outline-primary btn-sm border rounded-pill text-white mr-2">Administrate accounts</button>';
+
+                echo "<button id = 'logout' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white'>Logout</button>";
+
+            ?>
         </div>
 
     
@@ -176,7 +182,8 @@
                         <img <?php trySet('image'); ?> class = 'img-thumbnail' id = 'image' name = 'image'></img>
                     </div>
                     <div class = 'container text-center'>
-                        <input class = 'form-control-file mt-4' type = "file" id = "file" name = "file">
+                        <input class = 'form-control-file mt-4' type = "file" accept = 'image/png,image/jpeg' id = "file" name = "file">
+                        <small class = 'form-text text-left'>Max. 5MB</small>
                     </div>
                 </div>
 

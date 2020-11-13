@@ -37,9 +37,12 @@ const recoveryMessage = document.getElementById('messageRec')
 const signIn = 'Sign-in'
 const signUp = 'Sign-up'
 
+let signInReplace = false
+
 window.onload = () => {
-    if ($(message).text().replace(/ /g, '').length != 1)
+    if ($(message).text().replace(/ /g, '').length > 1) {
         $(message).fadeIn('fast')
+    }
 }
 
 const wait = async time => {
@@ -284,18 +287,21 @@ loginSwitch.addEventListener("click", async () => {
 
 loginButton.addEventListener("click", async e => {
 
+    console.log(signInReplace)
+
     e.preventDefault()
 
-    const ans = await Promise.resolve($.post('./Login.php', { data: usernameEmailLogin.value, password: passwordLogin.value, remember: rememberMe.checked }))
+    const ans = JSON.parse(await Promise.resolve($.post('./Login.php', { data: usernameEmailLogin.value, password: passwordLogin.value, signInReplace: signInReplace }))) // remember: rememberMe.checked,
 
-    if (ans == 'true')
+    if (ans.status == 1)
         return window.location = '/Index.php'
 
+    signInReplace = ans.status == 2
 
     $(loginButton).prop('disabled', true)
 
     if (!$(message).html | $(message).html != ans)
-        $(message).html(ans).fadeIn('fast').removeClass('alert-info').addClass('alert-danger')
+        $(message).html(ans.message).fadeIn('fast').removeClass('alert-info').addClass('alert-danger')
 
 
     $(loginButton).prop('disabled', false)

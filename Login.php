@@ -1,5 +1,6 @@
 <?php
     include './API/mysql.php';
+    include './API/functions.php';
 
     session_start();
 
@@ -10,28 +11,44 @@
 
         if (!isset($_POST['message'])) {
 
-            if (!isset($_POST['data']) || !isset($_POST['password']) || !$_POST['data'] || !$_POST['password'])
-                die('Missing credentials.');
+            if (!isset($_POST['data']) || !isset($_POST['password']) || !isset($_POST['signInReplace']) || !$_POST['data'] || !$_POST['password']) // !isset($_POST['remember'])
+                return Status(false, 'Missing credentials.');
 
             $usernameEmail = $_POST['data'];
             $password = $_POST['password'];
             $type = strpos($usernameEmail, '@') ? 'email' : 'username';
 
-            $query = $conn->prepare('select hex(id) as id, username, email, isLogged, password from users where ' . $type . ' = ?');
+            $query = $conn->prepare('select hex(id) as id, username, email, sessionId, password from users where ' . $type . ' = ?');
             $query->bind_param('s', $usernameEmail);
             $query->execute();
-            $query->bind_result($id, $username, $email, $isLogged, $dbPass);
+            $query->bind_result($id, $username, $email, $sessionId, $dbPass);
             $query->fetch();
             $query->close();
 
             if (!$dbPass)
-                die('There is no user with the given credentials.');
+                return Status(false, 'There is no user with the given credentials.');
 
             if (!password_verify($password, $dbPass))
-                die('Wrong password.');
+                return Status(false, 'Wrong password.');
 
-            if ($isLogged)
-                die('User is already connected.');
+            if ($sessionId != "0") {
+                if ($_POST['signInReplace'] == "true") {
+                    $oldSessId = sendQuery('select sessionId from users where ' . $type . ' = ?', $usernameEmail)[0];
+                    session_id($oldSessId['sessionId']);
+                    session_destroy();
+                    session_start();
+                }
+
+                else
+                    return Status(2, 'User is already connected.<br>If you wish to login from this device,<br>press the login button once more.');
+            }
+
+            // if ($_POST['remember']) {
+            //     setcookie('active', time() + 3600 * 24);
+            // }
+            // else {
+            //     setcookie('active', time() - 3600 * 24);
+            // }
 
             $query = $conn->prepare('select 1 from toConfirm where id = unhex(?)');
             $query->bind_param('s', $id);
@@ -42,20 +59,26 @@
 
             if ($notConfirmed) {
                 $arg = "'" . $email . "'";
-                die('Your account has not been confirmed. Check your e-mail at ' . $email . '.<br>If you need to re-send the confirmation e-mail, <b><a class="resendLink" href = "#" onclick="resendVerification(' . $arg . ')">click here</a></b>.');
+                return Status(false, 'Your account has not been confirmed. Check your e-mail at ' . $email . '.<br>If you need to re-send the confirmation e-mail, <b><a class="resendLink" href = "#" onclick="resendVerification(' . $arg . ')">click here</a></b>.');
             }
 
-            echo 'true';
+            $sessId = session_id();
 
-            $query = $conn->prepare('update users set isLogged = 1 where ' . $type . ' = ?');
-            $query->bind_param('s', $usernameEmail);
+            $query = $conn->prepare('update users set sessionId = ? where ' . $type . ' = ?');
+            $query->bind_param('ss', $sessId, $usernameEmail);
             $query->execute();
             $query->close();
 
+            $isAdmin = sendQuery('select count(*) as c from admins where id = unhex(?);', $id)[0]['c'];
+            
+            if ($isAdmin)
+                $_SESSION['admin'] = true;
+            
             $_SESSION['isLogged'] = true;
             $_SESSION['id'] = $id;
             $_SESSION['username'] = $username;
-            die();
+            
+            return Status(1, '');
         }
     }
 
@@ -129,8 +152,8 @@
             <div class = 'container text-white'>
                 <form class = 'login formTab active' id = 'loginForm' action = '/Login.php' method = 'POST'>
 
-                    <div id = 'message' class = 'alert alert-success mb-4 mt-4'>
-                        <?php 
+                    <div id = 'message' class = 'alert alert-success text-center mb-4 mt-4'>
+                        <?php
                             if (isset($_SESSION['confirmation'])) { 
                                 echo 'Your account has been succesfully verified. You can now log in.'; 
                                 unset($_SESSION['confirmation']); 
@@ -153,10 +176,10 @@
                         <input id = 'passwordLogin' class = 'form-control' type = 'password' name = 'password'>
                     </div>
 
-                    <div class = 'form-group text-center'>
+                    <!-- <div class = 'form-group text-center'>
                         <label for = 'remember'>Remember me: </label>
                         <input id = 'rememberMe' type = 'checkbox' name = 'remember'>
-                    </div>
+                    </div> -->
 
                     <div class = 'container text-center my-4'>
                         <button id = 'loginButton' class = 'btn btn-outline-primary btn-lg text-white formbtn' type = 'submit'>Login</button>

@@ -73,23 +73,18 @@
 
         </nav>
 
-            <div class = 'container-fluid text-right py-4'>
-                <?php
-                    if (isset($_SESSION['isLogged']) && $_SESSION['isLogged']) {
-                ?>
+        <div class = "container-fluid text-right my-4">
+            <?php
 
-                <button id = 'logout' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white'>Logout</button>
+                if (isset($_SESSION['admin']) && $_SESSION['admin'])
+                    echo '<button id = "admin" class = "btn btn-outline-primary btn-sm border rounded-pill text-white mr-2">Administrate accounts</button>';
 
-                <?php
-                    } else {
-                ?>
-
-                <button id = 'login' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white'>Sign in</button>               
-
-                <?php
-                    }
-                ?>
-            </div>
+                if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'])
+                    echo '<button id = "logout" class = "btn btn-outline-primary btn-sm border rounded-pill text-white">Logout</button>';
+                else
+                    echo '<button id = "login" class = "btn btn-outline-primary btn-sm border rounded-pill text-white">Sign in</button>';
+            ?>
+        </div>
 
       
         <div id = 'whatDoWeDo' class = 'container'>

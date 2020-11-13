@@ -1,4 +1,4 @@
-var countryId, stateId, cityId
+var countryId = -1, stateId = -1, cityId = -1
 let currentFocus
 
 const firstName = document.getElementById('firstName')
@@ -107,8 +107,10 @@ const removeChildren = elem => {
 }
 
 const removeChildrenMul = (...elems) => {
-    for (let elem of elems)
+    for (let elem of elems) {
         removeChildren(elem)
+        $(elem).removeClass('border rounded')
+    }
 }
 
 const removeAllChildren = () => {
@@ -121,15 +123,13 @@ const removeActive = elem => {
 }
 
 const empty = (...elems) => {
-    for (let elem of elems) {
-        elem.value = ''
-        elem.disabled = true
-    }
+    for (let elem of elems)
+        $(elem).val('')
 }
 
 const disable = (...elems) => {
     for (let elem of elems)
-        elem.disabled = true;
+        $(elem).attr('disabled', true)
 }
 
 const addActive = elem => {
@@ -170,10 +170,13 @@ const elemToBad = elem => {
 
 const createAutocomplete = (data, from, target, id) => {
 
-    if (!from.value)
-        return removeChildren(target)
-
+    $(target).removeClass('border rounded')
     removeChildren(target)
+
+    if (!(from.value && data.length))
+        return
+
+    $(target).addClass('border rounded')
     
     currentFocus = -1
 
@@ -186,9 +189,10 @@ const createAutocomplete = (data, from, target, id) => {
 
         potential.className = 'selectElement'
 
-        potential.innerHTML = '<a href = "#" class = "text-white" <b>' + elem.name.substr(0, from.value.length) + '</b>' + elem.name.substr(from.value.length) + '</a>'
+        potential.innerHTML = '<a href = "#" class = "text-white text-center font-italic" <b>' + elem.name.substr(0, from.value.length) + '</b>' + elem.name.substr(from.value.length) + '</a>'
 
-        potential.addEventListener("click", async e => {
+        $(potential).click(() => {
+            $(this).next().focus()
             from.value = elem.name
             window[id] = elem.id
             removeChildren(target)
@@ -243,12 +247,12 @@ const handleBlurEvent = async (elem, next, next2) => {
     
     if (!ans) {
         empty(next, next2)
-        disable(next, next2)
+
         $(elemToBad(elem)).fadeIn('fast')
     }
 
     else {
-        $(next).prop('disabled', false)
+        
         $(elemToBad(elem)).fadeOut('fast')
     }
 }
@@ -309,8 +313,15 @@ $(document).on('keyup', e => {
 
 
 $(file).change(async e => {
-  image.src = URL.createObjectURL(e.target.files[0])
-  $(wrapImage).fadeIn('fast')
+    const file = e.target.files[0]
+    if (file.size > 5000000)
+        return alert('The file you have uploaded is larger than 5MB.')
+
+    if (!file.type.match('image*'))
+        return alert('You should enter an image (.jpeg / .png).')
+
+    image.src = URL.createObjectURL(file)
+    $(wrapImage).fadeIn('fast')
 })
 
 
@@ -345,6 +356,11 @@ $(update).click(async () => {
         contentType: false
     })))
 
+    if (!ans.status) {
+        console.log(ans)
+        return
+    }
+    
     $(message).removeClass('alert-danger').addClass('alert-info').html(ans.message)
 
     for (elem of allElements)
