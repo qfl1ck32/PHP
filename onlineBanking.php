@@ -16,8 +16,8 @@
     
 
     foreach ($currencies as $currentCurrency) {
-        $name = substr($currentCurrency['name'], 0, 2);
-        $img = glob('Images/countryFlags/' . $name . '.png');
+        $name = $currentCurrency['name'];
+        $img = glob('Images/countryFlags/' . substr($name, 0, 2) . '.png');
 
         $currencyWithImg[] = array('name' => $name, 'src' => $img[0]);
     }
