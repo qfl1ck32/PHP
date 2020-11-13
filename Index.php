@@ -5,7 +5,7 @@
     include './API/mysql.php';
 
     if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'] == true) {
-        $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id']);
+        $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id'])[0]['sessionId'];
 
         if (session_id() != $sessId) {
             echo session_id() . ' ||| ' . $sessId;
