@@ -1,5 +1,17 @@
 <?php
     session_start();
+
+    include './API/functions.php';
+    include './API/mysql.php';
+
+    if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'] == true) {
+        $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id']);
+
+        if (session_id() != $sessId) {
+            session_destroy();
+            die(header('location: /404.php'));
+        }
+    }
 ?>
 
 <!DOCTYPE html>

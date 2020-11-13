@@ -3,9 +3,15 @@
     if (!isset($_SESSION['isLogged']) || !$_SESSION['isLogged'])
         die(header('location: /404.php'));
 
+    $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id']);
+
+    if (session_id() != $sessId) {
+        session_destroy();
+        die(header('location: /404.php'));
+    }
+
     include './API/functions.php';
     include './API/mysql.php';
-
 
     $pendingData = sendQuery('select * from pendingPersonalData where id = unhex(?);', $_SESSION['id']);
     $actualData = sendQuery('select * from personalData where id = unhex(?);', $_SESSION['id']);

@@ -6,6 +6,16 @@
     if (!$_SESSION['resetPassword'])
         die(header('location: /404.php'));
 
+    
+    if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'] == true) {
+        $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id']);
+
+        if (session_id() != $sessId) {
+            session_destroy();
+            die(header('location: /404.php'));
+        }
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (!isset($_POST['password']) || !isset($_POST['confirmPassword']) || !$_POST['password'])

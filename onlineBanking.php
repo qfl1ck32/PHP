@@ -7,6 +7,13 @@
     include './API/functions.php';
     include './API/mysql.php';
 
+    $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id']);
+
+    if (session_id() != $sessId) {
+        session_destroy();
+        die(header('location: /404.php'));
+    }
+
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // security element - before getting data about the credit card, first check it belongs to the user.

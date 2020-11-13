@@ -78,7 +78,7 @@
             $_SESSION['id'] = $id;
             $_SESSION['username'] = $username;
             
-            return Status(1, '');
+            return Status(1);
         }
     }
 
