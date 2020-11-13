@@ -36,10 +36,7 @@
                     $oldSessId = sendQuery('select sessionId from users where ' . $type . ' = ?', $usernameEmail)[0];
                     session_id($oldSessId['sessionId']);
                     session_start();
-                    $hasDestroyed = session_destroy();
-
-                    if (!$hasDestroyed)
-                        return Status(-1, "Session could not be destroyed?");
+                    session_destroy();
 
                     session_start();
                 }
