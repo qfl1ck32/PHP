@@ -2,6 +2,19 @@
 
     session_start();
 
+    function bigNumMod($x, $y) {
+        $take = 5;
+        $mod = '';
+
+        do {
+            $a = (int) $mod.substr($x, 0, $take);
+            $x = substr($x, $take);
+            $mod = $a % $y;
+        } while (strlen($x));
+
+        return (int) $mod;
+    }
+
     include 'functions.php';
     include 'mysql.php';
 
@@ -86,7 +99,7 @@
 
     }
 
-    $checkSum = 98 - bcmod($checkSum, 97);
+    $checkSum = 98 - bigNumMod($checkSum, 97);
 
     if ($checkSum < 10)
         $checkSum = str_pad($checkSum, 2, "0", STR_PAD_LEFT);
