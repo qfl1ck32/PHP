@@ -17,4 +17,5 @@ for elem in divs:
     print(img[0]['src'])
     p = elem.findChildren('p')
     print(p)
-    exit()
+
+    open('
