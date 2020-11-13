@@ -8,6 +8,8 @@
         $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id']);
 
         if (session_id() != $sessId) {
+            echo session_id() . ' ||| ' . $sessId;
+            die();
             session_destroy();
             die(header('location: /404.php'));
         }
