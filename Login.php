@@ -34,7 +34,6 @@
             if ($sessionId != "0") {
                 if ($_POST['signInReplace'] == "true") {
                     $oldSessId = sendQuery('select sessionId from users where ' . $type . ' = ?', $usernameEmail)[0];
-                    session_destroy();
                     session_id($oldSessId['sessionId']);
                     session_start();
                     session_destroy();
