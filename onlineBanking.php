@@ -199,7 +199,7 @@
                                <form>
                                    <div class = 'form-group'>
                                         <label for = 'currency'>Currency</label>
-                                        <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' name = 'currency'>
+                                        <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'createCardWithCurrency' name = 'currency'>
                                            <?php
                                                 foreach ($currencyWithImg as $curr) {
                                                     echo "<option value = '" . $curr['name'] . "'>" . $curr['name'] . "</option>";
