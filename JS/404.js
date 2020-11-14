@@ -1,3 +1,3 @@
 setTimeout(() => {
-    window.location.href = '/'
+    window.location.href = '/Index.php'
 }, 2000)
