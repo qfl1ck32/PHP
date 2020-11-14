@@ -130,59 +130,59 @@
                 </div>
 
                 <div class = "form-group">
-                        <label for = "firstName">First name: </label>
-                        <input <?php trySet('firstName'); ?> autocomplete = "off" id = 'firstName' class = "form-control" type = "text" name = "firstName">
+                    <label for = "firstName">First name: </label>
+                    <input <?php trySet('firstName'); ?> autocomplete = "off" id = 'firstName' class = "form-control" type = "text" name = "firstName">
                 </div>
                     
                 <div class = "form-group">
-                        <label for = "lasttName">Last name: </label>
-                        <input <?php trySet('lastName'); ?> autocomplete = "off" id = 'lastName' class = "form-control" type = "text" name = "lastName">
+                    <label for = "lasttName">Last name: </label>
+                    <input <?php trySet('lastName'); ?> autocomplete = "off" id = 'lastName' class = "form-control" type = "text" name = "lastName">
                 </div>
 
                 <div class = "form-group">
-                        <label for = "dateOfBirth">Date of birth: </label>
-                        <input <?php trySet('dateOfBirth'); ?> autocomplete = "off" id = 'dateOfBirth' class = "form-control" type = "date" name = "dateOfBirth">
+                    <label for = "dateOfBirth">Date of birth: </label>
+                    <input <?php trySet('dateOfBirth'); ?> autocomplete = "off" id = 'dateOfBirth' class = "form-control" type = "date" name = "dateOfBirth">
                 </div>
 
                 <div class = "form-group">
-                        <label for = "gender">Gender: </label>
-                        <select class = "form-control" name = "gender" id = "gender">
-                            <?php if (!isset($data['gender'])) echo '<option value = "" selected disabled hidden>Choose here</option>'; ?>
-                            <option <?php trySetGender('M'); ?> value = "M">M</option>
-                            <option <?php trySetGender('F'); ?> value = "F">F</option>
-                        </select>
+                    <label for = "gender">Gender: </label>
+                    <select class = "form-control custom-select" name = "gender" id = "gender">
+                        <?php if (!isset($data['gender'])) echo '<option value = "" selected disabled hidden>Choose here</option>'; ?>
+                        <option <?php trySetGender('M'); ?> value = "M">M</option>
+                        <option <?php trySetGender('F'); ?> value = "F">F</option>
+                    </select>
                 </div>
 
                 <div class = "form-group">
-                        <label for = "address">Address: </label>
-                        <input <?php trySet('address'); ?> autocomplete = "off" id = 'address' class = "form-control" type = "text" name = "address">
+                    <label for = "address">Address: </label>
+                    <input <?php trySet('address'); ?> autocomplete = "off" id = 'address' class = "form-control" type = "text" name = "address">
                 </div>
 
                 <div class = "form-group">
-                        <label for = "country">Country: </label>
-                        <input <?php trySet('country'); ?> autocomplete = "off" id = 'country' class = "form-control" type = "text" name = "country">
-                        <div id = "countries" class = "container countries bg-info mt-2"></div>
-                        <div id = "badCountries" class = "container alert alert-danger mt-4">
-                            You have selected a non-existing country.
-                        </div>
+                    <label for = "country">Country: </label>
+                    <input <?php trySet('country'); ?> autocomplete = "off" id = 'country' class = "form-control" type = "text" name = "country">
+                    <div id = "countries" class = "container countries bg-info mt-2"></div>
+                    <div id = "badCountries" class = "container alert alert-danger mt-4">
+                        You have selected a non-existing country.
+                    </div>
                 </div>
 
                 <div class = "form-group">
-                        <label for = "state">State: </label>
-                        <input <?php trySet('state'); ?> autocomplete = "off" id = 'state' class = "form-control" type = "text" name = "state">
-                        <div id = "states" class = "container states bg-info mt-2"></div>
-                        <div id = "badStates" class = "container alert alert-danger mt-4">
-                            You have selected a state which does not exist or is not in the selected country.
-                        </div>
+                    <label for = "state">State: </label>
+                    <input <?php trySet('state'); ?> autocomplete = "off" id = 'state' class = "form-control" type = "text" name = "state">
+                    <div id = "states" class = "container states bg-info mt-2"></div>
+                    <div id = "badStates" class = "container alert alert-danger mt-4">
+                        You have selected a state which does not exist or is not in the selected country.
+                    </div>
                 </div>
 
                 <div class = "form-group">
-                        <label for = "city">City: </label>
-                        <input <?php trySet('city'); ?> autocomplete = "off" id = 'city' class = "form-control" type = "text" name = "city">
-                        <div id = "cities" class = "container cities bg-info mt-2"></div>
-                        <div id = "badCities" class = "container alert alert-danger mt-4">
-                            You have selected a city which does not exist or is not in the selected country.
-                        </div>
+                    <label for = "city">City: </label>
+                    <input <?php trySet('city'); ?> autocomplete = "off" id = 'city' class = "form-control" type = "text" name = "city">
+                    <div id = "cities" class = "container cities bg-info mt-2"></div>
+                    <div id = "badCities" class = "container alert alert-danger mt-4">
+                        You have selected a city which does not exist or is not in the selected country.
+                    </div>
                 </div>
 
                 <div class = "form-group">
@@ -200,7 +200,7 @@
                 </div>
 
                 <div class = "container text-center mb-4">
-                    <button id = 'update' class = "btn btn-outline-primary btn-md text-white">Update</button>
+                    <button disabled id = 'update' class = "btn btn-outline-primary btn-md text-white">Update</button>
                 </div>
 
             </div>
