@@ -1,37 +1,39 @@
-let countryId = -1, stateId = -1, cityId = -1
+var countryId = -1, stateId = -1, cityId = -1
 let currentFocus
 
-const firstName = document.getElementById('firstName')
-const lastName = document.getElementById('lastName')
-const dateOfBirth = document.getElementById('dateOfBirth')
-const gender = document.getElementById('gender')
-const address = document.getElementById('address')
+const get = elem => {
+    return document.getElementById(elem)
+}
 
-const country = document.getElementById('country')
-const countries = document.getElementById('countries')
+const   firstName = get('firstName'),
+        lastName = get('lastName'),
+        dateOfBirth = get('dateOfBirth'),
+        gender = get('gender'),
+        address = get('address'),
 
-const city = document.getElementById('city')
-const cities = document.getElementById('cities')
+        country = get('country'),
+        countries = get('countries'),
 
-const state = document.getElementById('state')
-const states = document.getElementById('states')
+        city = get('city'),
+        cities = get('cities'),
 
-const update = document.getElementById('update')
+        state = get('state'),
+        states = get('states'),
 
-const badCountry = document.getElementById('badCountries')
-const badState = document.getElementById('badStates')
-const badCity = document.getElementById('badCities')
+        update = get('update'),
 
-const emptyFields = document.getElementById('emptyFields')
+        badCountry = get('badCountries'),
+        badState = get('badStates'),
+        badCity = get('badCities'),
 
-const file = document.getElementById('file')
-const image = document.getElementById('image')
-const wrapImage = document.getElementById('wrapImage')
+        file = get('file'),
+        image = get('image'),
+        wrapImage = get('wrapImage'),
 
-const message = document.getElementById('message')
-const messageWrap = document.getElementById('messageWrap')
+        message = get('message'),
+        messageWrap = get('messageWrap'),
 
-const allElements = [firstName, lastName, dateOfBirth, gender, address, country, city, state, file, update]
+        allElements = [firstName, lastName, dateOfBirth, gender, address, country, city, state, file]
 
 const wait = async time => {
     return await new Promise(resolve => {
@@ -41,13 +43,42 @@ const wait = async time => {
 
 window.onload = async () => {
 
+    for (const elem of [firstName, lastName, address, file]) {
+        $(elem).on('input', () => {
+            checkCanUpdate()
+
+            if (!$(elem).val().length)
+                $(elem).removeClass('is-invalid').removeClass('is-valid')
+
+            if ($(elem).val().length < 2)
+                $(elem).removeClass('is-valid').addClass('is-invalid')
+            else
+                $(elem).removeClass('is-invalid').addClass('is-valid')
+
+        })
+    }
+
+    $(gender).on('input', () => {
+
+        if ($(gender).val() === 'Choose here')
+            $(gender).removeClass('is-valid').addClass('is-invalid')
+
+        else
+            $(gender).removeClass('is-invalid').addClass('is-valid')
+    })
+
+    $(dateOfBirth).on('input', () => {
+        if ($(dateOfBirth).val() === '')
+            $(dateOfBirth).removeClass('is-valid').addClass('is-invalid')
+        else
+            $(dateOfBirth).removeClass('is-invalid').addClass('is-valid')
+    })
+
     if (!country.value)
         return
 
-    for (const elem of allElements)
-        $(elem).on('input', () => {
-            $(emptyFields).hide()
-        })
+    for (const elem of [firstName, lastName, dateOfBirth, gender, address, country, state, city])
+        $(elem).addClass('is-valid')
 
     const ids = JSON.parse(await Promise.resolve($.post('./API/location.php', { getIds: true, countryName: country.value, stateName: state.value, cityName: city.value } )))
 
@@ -63,57 +94,22 @@ window.onload = async () => {
 
         update.innerHTML = 'Can not update at the moment.'
         
-        for (elem of allElements)
+        for (elem of allElements) {
             $(elem).prop('disabled', true)
+        }
     }
 }
 
-const checkInputEmpty = () => {
-
-    const toVerify = [firstName, lastName, dateOfBirth, gender, address, country, city, state, file]
-    const bads = [badCountry, badState, badCity]
-
-    for (const bad of bads) {
-        if ($(bad).is(':visible')) {
+const checkCanUpdate = () => { 
+    for (const elem of allElements)
+        if (!$(elem).val() || $(elem).hasClass('is-invalid')) {
             $(update).attr('disabled', true)
-            $(bad).addClass('shake').on('animationend', () => {
-                $(update).attr('disabled', false)
-                $(bad).removeClass('shake')
-            })
+            return false
         }
-    }
+    
+    $(update).attr('disabled', false)
 
-    for (const inp of toVerify)
-        if (!$(inp).val().length) {
-
-            if ($(emptyFields).is(':visible')) {
-                $(update).attr('disabled', true)
-                $(emptyFields).addClass('shake').on('animationend', () => {
-                    $(emptyFields).removeClass('shake')
-                    $(update).attr('disabled', false)
-                })
-            }
-
-            else
-                $(emptyFields).fadeIn('fast')
-
-            return 0
-        }
-
-    $(emptyFields).hide()
-
-    return 1
-}
-
-const hideErrors = () => {
-    for (elem of [badCountry, badState, badCity, emptyFields])
-        if ($(elem).is(':visible')) {
-            $(update).attr('disabled', true)
-            $(elem).addClass('shake').on('animationend', () => {
-                $(elem).removeClass('shake')
-                $(update).attr('disabled', false)
-            })
-        }
+    return true
 }
 
 const removeChildren = elem => {
@@ -138,8 +134,11 @@ const removeActive = elem => {
 }
 
 const empty = (...elems) => {
-    for (let elem of elems)
+    for (let elem of elems) {
         $(elem).val('')
+        $(elem).removeClass('is-valid').removeClass('is-invalid')
+        $(elemToBad(elem)).hide()
+    }
 }
 
 const disable = (...elems) => {
@@ -266,13 +265,21 @@ const handleBlurEvent = async (elem, next, next2) => {
     if (!ans) {
         empty(next, next2)
         $(elemToBad(elem)).fadeIn('fast')
+
+        $(elem).removeClass('is-valid').addClass('is-invalid')
     }
 
     else {
-        
+        $(elem).removeClass('is-invalid').addClass('is-valid')
+
         $(elemToBad(elem)).fadeOut('fast')
     }
 }
+
+
+$(firstName).on('input', () => {
+
+})
 
 
 $(country).on("input", async e => {
@@ -290,6 +297,8 @@ $(country).on("keydown", async e => {
 
 $(country).on("blur", async e => {
     await handleBlurEvent(country, state, city)
+
+    checkCanUpdate()
 })
 
 
@@ -305,6 +314,8 @@ $(state).on("keydown", e => {
 
 $(state).on("blur", async e => {
     await handleBlurEvent(state, city, city)
+
+    checkCanUpdate()
 })
 
 
@@ -321,6 +332,8 @@ $(city).on("keydown", e => {
 $(city).on("blur", async e => {
     const dummy = document.createElement('p')
     await handleBlurEvent(city, dummy, dummy)
+
+    checkCanUpdate()
 })
 
 $(document).on('keyup', e => {
@@ -339,6 +352,8 @@ $(file).change(async e => {
 
     image.src = URL.createObjectURL(file)
     $(wrapImage).fadeIn('fast')
+
+    checkCanUpdate()
 })
 
 
@@ -346,16 +361,8 @@ $(update).click(async () => {
 
     await wait(200)
 
-    const isOk = checkInputEmpty()
-
-    if (!isOk)
+    if(!checkCanUpdate())
         return
-
-    for (let elem of [badCountries, badStates, badCities])
-        if ($(elem).is(':visible'))
-            return
-
-    hideErrors()
 
     const data = new FormData();
     
