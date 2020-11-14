@@ -45,8 +45,6 @@ window.onload = async () => {
 
     for (const elem of [firstName, lastName, address, file]) {
         $(elem).on('input', () => {
-            checkCanUpdate()
-
             if (!$(elem).val().length)
                 $(elem).removeClass('is-invalid').removeClass('is-valid')
 
@@ -55,6 +53,7 @@ window.onload = async () => {
             else
                 $(elem).removeClass('is-invalid').addClass('is-valid')
 
+            checkCanUpdate()
         })
     }
 
@@ -65,6 +64,8 @@ window.onload = async () => {
 
         else
             $(gender).removeClass('is-invalid').addClass('is-valid')
+
+        checkCanUpdate()
     })
 
     $(dateOfBirth).on('input', () => {
@@ -72,6 +73,8 @@ window.onload = async () => {
             $(dateOfBirth).removeClass('is-valid').addClass('is-invalid')
         else
             $(dateOfBirth).removeClass('is-invalid').addClass('is-valid')
+
+        checkCanUpdate()
     })
 
     if (!country.value)
@@ -385,6 +388,8 @@ $(update).click(async () => {
     }
     
     $(message).removeClass('alert-danger').addClass('alert-info').html(ans.message)
+
+    $(update).prop('disabled', true)
 
     for (elem of allElements)
         $(elem).prop('disabled', true)
