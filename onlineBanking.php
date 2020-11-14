@@ -2,6 +2,7 @@
     session_start();
 
     include './API/mysql.php';
+    include './API/functions.php';
 
     if (!isset($_SESSION['isLogged']) || !$_SESSION['isLogged'])
         die(header('location: /404.php'));
@@ -12,9 +13,6 @@
         session_destroy();
         die(header('location: /404.php'));
     }
-
-    include './API/functions.php';
-    include './API/mysql.php';
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
