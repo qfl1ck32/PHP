@@ -4,15 +4,15 @@
     include 'constants.php';
 
     if (!isset($_POST['data']))
-        ext('Missing parameter.');
+        return Status(false, 'Missing parameter.');
 
     if (!$_POST['data'])
-        ext('Missing credential.');
+        return Status(false, 'Missing credential.');
 
     $ans = sendQuery('select count(*) as c from users where username = ? or email = ?;', $_POST['data'], $_POST['data'])[0]['c'];
 
     if (!$ans)
-        ext('There is no user with the given credentials.');
+        return Status(false, 'There is no user with the given credentials.');
 
     $ans = sendQuery('select hex(id) as id, username, email from users where username = ? or email = ?;', $_POST['data'], $_POST['data'])[0];
 
@@ -33,7 +33,7 @@
             $difference = $expiry - $currentTime;
             $time = gmdate("i:s", $difference);
             $arg = "'" . $email . "'";
-            ext('There has already been sent a recovery e-mail to you.<br>Please <a href = "#" onclick = "recoveryButton.click()">try again</a> in ' . $time . '.');
+            return Status(false, 'There has already been sent a recovery e-mail to you.<br>Please <a href="#" onclick="recoveryButton.click()">try again</a> in ' . $time . '.');
         }
 
         else {
@@ -62,9 +62,6 @@
 
     sendVerificationEmail($data);
 
-    echo json_encode(array(
-        'success' => true,
-        'message' => 'We have succesfully sent you a recovery link on your e-mail.'
-    ));
-    
+
+    return Status(true, 'We have succesfully sent you a recovery link on your e-mail.');
 ?>
