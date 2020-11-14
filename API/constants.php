@@ -5,5 +5,5 @@
     
     $confirmEmailSubject = 'Confirm your myBank account.';
     $resetPasswordSubject = 'Reset your myBank account\'s password.';
-    $host = 'localhost';  
+    $host = 'https://mybank32.herokuapp.com';  
 ?>
