@@ -18,8 +18,9 @@
     try {
 
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
+        $mail->Host = 'tls://smtp.gmail.com';
         $mail->SMTPAuth = true;
+        $mail->SMTPSecure = 'tls';
         $mail->Username = 'mybankonline32@gmail.com';
         $mail->Password = getenv('emailPassword');
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
