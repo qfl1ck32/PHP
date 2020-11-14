@@ -15,13 +15,13 @@
 
         $ans = sendQuery('select id countryId, (select id stateId from states where name = ?) stateId, (select id from cities c where name = ? and (select name from states where id = c.state_id) = ?) cityId from countries where name = ?;', $_POST['stateName'], $_POST['cityName'], $_POST['stateName'], $_POST['countryName']);
         
-        return Status(1, $ans);
+        return Status(true, $ans[0]);
     }
 
     if (isset($_POST['checkExists'])) {
 
         if (!isset($_POST['value']))
-            die('Missing parameter.');
+            return Status(false, "Missing parameter.");
 
         switch($_POST['where']) {
             case 'countries':
@@ -41,7 +41,7 @@
     }
 
     if (!isset($_POST['where']) || !isset($_POST['substr']))
-        die('Missing parameters.');
+        return Status(false, "Missing parameter.");
 
     switch($_POST['where']) {
         case 'countries':
@@ -50,13 +50,13 @@
 
         case 'states':
             if (!isset($_POST['countryId']))
-                die('Missing parameter.');
+                return Status(false, "Missing parameter.");
             $data = sendQuery('select * from states where country_id = ? and name like concat(?, "%");', $_POST['countryId'], $_POST['substr']);
             break;
 
         case 'cities':
             if (!isset($_POST['stateId']))
-                die('Missing parameter.');
+                return Status(false, "Missing parameter.");
             $data = sendQuery('select * from cities where state_id = ? and name like concat(?, "%");', $_POST['stateId'], $_POST['substr']);
             break;
     }
