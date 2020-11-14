@@ -32,15 +32,16 @@
                 return Status(false, 'Wrong password.');
 
             if ($sessionId != "0") {
-                // if ($_POST['signInReplace'] == "true") {
-                //     $oldSessId = sendQuery('select sessionId from users where ' . $type . ' = ?', $usernameEmail)[0];
-                //     session_id($oldSessId['sessionId']);
-                //     session_unset();
-                //     session_destroy();
+                if ($_POST['signInReplace'] == "true") {
+                    $oldSessId = sendQuery('select sessionId from users where ' . $type . ' = ?', $usernameEmail)[0];
+                    session_id($oldSessId['sessionId']);
+                    session_unset();
+                    session_destroy();
 
-                //     session_start();
-                // }
-                if (!$_POST['signInReplace'] == "true")
+                    session_start();
+                }
+
+                else
                     return Status(2, 'User is already connected.<br>If you wish to login from this device,<br>press the login button once more.');
             }
 
