@@ -66,7 +66,7 @@
         $content = http_build_query($data);
 
         fwrite($fp, "POST /API/sendMail.php HTTP/1.1\r\n");
-        fwrite($fp, "Host: localhost\r\n");
+        fwrite($fp, "Host: mybank32.herokuapp.com\r\n");
         fwrite($fp, "Content-Type: application/x-www-form-urlencoded\r\n");
         fwrite($fp, "Content-Length: " . strlen($content) . "\r\n");
         fwrite($fp, "Connection: close\r\n");
