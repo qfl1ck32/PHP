@@ -32,16 +32,15 @@
                 return Status(false, 'Wrong password.');
 
             if ($sessionId != "0") {
-                if ($_POST['signInReplace'] == "true") {
-                    $oldSessId = sendQuery('select sessionId from users where ' . $type . ' = ?', $usernameEmail)[0];
-                    session_id($oldSessId['sessionId']);
-                    session_unset();
-                    session_destroy();
+                // if ($_POST['signInReplace'] == "true") {
+                //     $oldSessId = sendQuery('select sessionId from users where ' . $type . ' = ?', $usernameEmail)[0];
+                //     session_id($oldSessId['sessionId']);
+                //     session_unset();
+                //     session_destroy();
 
-                    session_start();
-                }
-
-                else
+                //     session_start();
+                // }
+                if (!$_POST['signInReplace'] == "true")
                     return Status(2, 'User is already connected.<br>If you wish to login from this device,<br>press the login button once more.');
             }
 
@@ -80,7 +79,7 @@
             $_SESSION['id'] = $id;
             $_SESSION['username'] = $username;
             
-            return Status(1, '');
+            return Status(true);
         }
     }
 
