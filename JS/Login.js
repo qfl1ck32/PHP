@@ -49,24 +49,33 @@ const wait = async time => {
 
 const checkCanRegister = () => {
     for (const elem of [username, email, password, confirmPassword])
-        if (!elem.value || $(elem).hasClass('is-invalid'))
-            return $(registerButton).attr('disabled', true)
+        if (!elem.value || $(elem).hasClass('is-invalid')) {
+            $(registerButton).attr('disabled', true)
+            return false
+        }
     
-    return $(registerButton).attr('disabled', false)
+    $(registerButton).attr('disabled', false)
+    return true
 }
 
 const checkCanLogin = () => {
-    if(usernameEmailLogin.value.length > 1 && passwordLogin.value.length > 5)
+    if(usernameEmailLogin.value.length > 1 && passwordLogin.value.length > 5) {
         $(loginButton).attr('disabled', false)
-    else
-        $(loginButton).attr('disabled', true)
+        return true
+    }
+
+    $(loginButton).attr('disabled', true)
+    return false
 }
 
 const checkCanRecover = () => {
-    if ($(recoveryData).val().length > 1)
+    if ($(recoveryData).val().length > 1) {
         $(recoveryButton).attr('disabled', false)
-    else
-        $(recoveryButton).attr('disabled', true)
+        return true
+    }    
+    
+    $(recoveryButton).attr('disabled', true)
+    return false
 }
 
 const checkPattern = password => {
@@ -87,7 +96,7 @@ const resendVerification = async email => {
     $(message).html(ans)
 }
 
-$(username).on('input', () => {
+$(username).on('change', () => {
 
     $(usernameExists).hide()
 
@@ -287,6 +296,9 @@ loginButton.addEventListener("click", async e => {
 
     e.preventDefault()
 
+    if (!checkCanLogin())
+        return
+
     $(loginButton).prop('disabled', true)
 
     const ans = JSON.parse(await Promise.resolve($.post('./Login.php', { data: usernameEmailLogin.value, password: passwordLogin.value, signInReplace: signInReplace }))) // remember: rememberMe.checked,
@@ -316,6 +328,9 @@ loginButton.addEventListener("click", async e => {
 registerButton.addEventListener("click", async e => {
 
     e.preventDefault()
+
+    if (!checkCanRegister())
+        return
 
     $(registerButton).attr('disabled', true)
 
@@ -365,6 +380,9 @@ recoveryData.addEventListener('input', () => {
 recoveryButton.addEventListener("click", async e => {
 
     e.preventDefault()
+
+    if (!checkCanRecover())
+        return
 
     $(recoveryButton).attr('disabled', true)
 
