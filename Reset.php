@@ -7,7 +7,6 @@
     if (!$_SESSION['resetPassword'])
         die(header('location: /404.php'));
 
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (!isset($_POST['password']) || !isset($_POST['confirmPassword']) || !$_POST['password'])
@@ -99,7 +98,7 @@
                 Reset password
             </div>
 
-            <p id = 'message' class = 'alert alert-danger'></p>
+            <p id = 'message' class = 'alert alert-danger text-center'></p>
 
             <div class = 'container text-white'>
                 <form class = "reset" id = "reset_form" action = "/Reset.php" method = "POST">
