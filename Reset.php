@@ -1,5 +1,6 @@
 <?php
     session_start();
+
     include './API/mysql.php';
     include './API/functions.php';
 

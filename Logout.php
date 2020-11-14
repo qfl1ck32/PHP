@@ -1,11 +1,11 @@
 <?php
     include './API/mysql.php';
+
     session_start();
-    session_destroy();
 
-    $query = $conn->prepare('update users set sessionId = 0 where username = ?');
-    $query->bind_param('s', $_SESSION['username']);
-    $query->execute();
+    $sessId = sendQuery('select sessionId from users where id = unhex(?);', $_SESSION['id']);
+    if (session_id() == $sessId)
+        sendQuery('update users set sessionId = 0 where id = unhex(?);', $_SESSION['id']);
 
-    header('location: /Index.php');
+    return header('location: /Index.php');
 ?>
