@@ -28,8 +28,6 @@ const rememberMe = document.getElementById('rememberMe')
 
 const message = document.getElementById('message')
 
-const emptyFields = document.getElementById("emptyFields")
-
 const recoveryData = document.getElementById('usernameEmail')
 const recoveryButton = document.getElementById('recoveryButton')
 const recoveryMessage = document.getElementById('messageRec')
@@ -49,67 +47,38 @@ const wait = async time => {
     await Promise.resolve(setTimeout(() => {}, time))
 }
 
-const checkInputEmpty = () => {
+const checkCanRegister = () => {
+    for (const elem of [username, email, password, confirmPassword])
+        if (!elem.value || $(elem).hasClass('is-invalid'))
+            return $(registerButton).attr('disabled', true)
+    
+    return $(registerButton).attr('disabled', false)
+}
 
-    const to_verify = [username, email, password]
-    const patterns = [ usernamePattern, emailPattern, usernameExists, emailExists]
+const checkCanLogin = () => {
+    if(usernameEmailLogin.value.length > 1 && passwordLogin.value.length > 5)
+        $(loginButton).attr('disabled', false)
+    else
+        $(loginButton).attr('disabled', true)
+}
 
-    for (let inp of to_verify) {
-        if (inp.value.length == 0) {
-            $(emptyFields).fadeIn('fast')
-            return 0
-        }
-    }
-
-    for (let pattern of patterns) {
-        if (pattern.style.display == "block") {
-            $(emptyFields).fadeIn('fast')
-            return 0
-        }
-    }
-
-    $(emptyFields).hide()
-
-    return 1
+const checkCanRecover = () => {
+    if ($(recoveryData).val().length > 1)
+        $(recoveryButton).attr('disabled', false)
+    else
+        $(recoveryButton).attr('disabled', true)
 }
 
 const checkPattern = password => {
-    const missing = ["one capital letter", "6 characters"]
-    let password_needs = []
+    let passwordNeeds = []
 
-    let upper = false, pattern_invalid = false
-    for (let i = 0; i < password.length; ++i) {
-        if (/[A-Z]/.test(password[i])) {
-            upper = true
-            break
-        }
-    }
+    if (password.toLowerCase() === password)
+        passwordNeeds.push("one capital letter")
+    
+    if (password.length < 6)
+        passwordNeeds.push("at least 6 characters")
 
-    if (!upper) {
-        password_needs.push(missing[0])
-        pattern_invalid = true
-    }
-
-    if (password.length < 6) {
-        password_needs.push(missing[1])
-        pattern_invalid = true
-    }
-
-    return [pattern_invalid, password_needs]
-}
-
-const runEffect = async (elem, effect) => {
-    $(elem).prop('disabled', true)
-    $(elem).toggleClass(effect)
-
-    await wait(200)
-
-    $(elem).toggleClass(effect)
-    $(elem).prop('disabled', false)
-}
-
-const shake = async elem => {
-    await runEffect(elem, 'shake')
+    return passwordNeeds
 }
 
 const resendVerification = async email => {
@@ -118,99 +87,117 @@ const resendVerification = async email => {
     $(message).html(ans)
 }
 
+$(username).on('input', () => {
 
-username.addEventListener("input", () => {
-
-    $(emptyFields).hide()
     $(usernameExists).hide()
 
-    const username_value = username.value
-    let correct = true
+    const usernameValue = username.value
 
-    if (!(/^.{2,15}$/.test(username_value))) {
-        $(usernamePattern).fadeIn('fast')
-        correct = false
+    if (!usernameValue.length) {
+        $(usernamePattern).hide()
+        return $(username).removeClass('is-valid').removeClass('is-invalid')
     }
 
-    if (correct || username_value.length == 0)
+    if (!(/^.{2,15}$/.test(usernameValue))) {
+        $(username).removeClass('is-valid').addClass('is-invalid')
+        $(usernamePattern).fadeIn('fast')
+    }
+
+    else {
+        $(username).removeClass('is-invalid').addClass('is-valid')
         $(usernamePattern).hide()
+    }
+
+    checkCanRegister()
+
 })
 
 email.addEventListener("input", () => {
-
-    $(emptyFields).hide()
     $(emailExists).hide()
 
-    const email_value = email.value
-    let correct = true
+    const emailValue = email.value
 
-    if (!(/\S+@\S+\.\S+/.test(email_value))) {
-        $(emailPattern).fadeIn('fast')
-        correct = false
+    if (!emailValue.length) {
+        $(emailPattern).hide()
+        return $(email).removeClass('is-valid').removeClass('is-invalid')
     }
 
-    if (correct || email_value.length == 0)
+    if (!(/\S+@\S+\.\S+/.test(emailValue))) {
+        $(email).removeClass('is-valid').addClass('is-invalid')
+        $(emailPattern).fadeIn('fast')
+    }
+
+    else {
+        $(email).removeClass('is-invalid').addClass('is-valid')
         $(emailPattern).hide()
+    }
+
+    checkCanRegister()
 })
 
 password.addEventListener("input", () => {
 
-    $(emptyFields).hide()
+    const confirmPass = confirmPassword.value
+    const actualPass = password.value
+    const missingProperties = checkPattern(actualPass)
 
-    const confirm_pass = confirmPassword.value
-    const actual_pass = password.value
-    const verify = checkPattern(actual_pass)
+    if (confirmPass != "" || (confirmPass == actualPass))
+        $(passwordMatch).hide()
+
+    if (missingProperties.length == 0 || actualPass == "") {
+        $(password).removeClass('is-invalid').addClass('is-valid')
+
+        if (actualPass == "")
+            $(password).removeClass('is-valid')
+
+        
+        checkCanRegister()
+        return $(passwordPattern).hide()
+    }
     
-    $(passwordShouldContain).fadeIn('fast')
+        
+    const childNodeProperty = []
+    const allChildren = passwordShouldContain.querySelectorAll('li')
 
-    if (confirm_pass != "" || (confirm_pass == actual_pass)) {
-        const event = new CustomEvent("input")
-        confirmPassword.dispatchEvent(event)
-    }
+    if (allChildren != null)
+        for (let li of allChildren)
+            childNodeProperty.push(li.innerHTML)
 
-    if (verify[0] && actual_pass != "") {
-        const childs_text = []
-        const childs = passwordShouldContain.querySelectorAll('li')
-
-        if (childs != null)
-            for (let li of childs)
-                childs_text.push(li.innerHTML)
-
-        for (let current_missing_pattern of childs) {
-            if (!(verify[1].includes(current_missing_pattern.innerHTML))) {
-                childs[0].parentNode.removeChild(current_missing_pattern)
-            }
-        }
-
-        $(passwordPattern).fadeIn('fast')
-
-        for (let i = 0; i < verify[1].length; ++i) {
-            if (!childs_text.includes(verify[1][i])) {
-                const li = document.createElement("li")
-                li.innerText = verify[1][i]
-                li.className += "fade_in"
-                passwordShouldContain.appendChild(li)
-            }
+    for (let current_missing_pattern of allChildren) {
+        if (!(missingProperties.includes(current_missing_pattern.innerHTML))) {
+            allChildren[0].parentNode.removeChild(current_missing_pattern)
         }
     }
-    else {
-        $(passwordPattern).hide()
-        passwordShouldContain.innerHTML = ""
+
+    for (let i = 0; i < missingProperties.length; ++i) {
+        if (!childNodeProperty.includes(missingProperties[i])) {
+            const li = document.createElement("li")
+            li.innerText = missingProperties[i]
+            li.className += "fade_in"
+            passwordShouldContain.appendChild(li)
+        }
     }
+
+    $(password).removeClass('is-valid').addClass('is-invalid')
+    $(passwordPattern).fadeIn('fast')
+ 
+    checkCanRegister()
     
 })
 
 confirmPassword.addEventListener("input", () => {
 
-    $(emptyFields).hide()
-
-    const actual_pass = password.value
-    const confirm_pass = confirmPassword.value
-
-    if (actual_pass == confirm_pass)
+    if (password.value == confirmPassword.value) {
+        $(confirmPassword).removeClass('is-invalid').addClass('is-valid')
         $(passwordMatch).hide()
-    else
+    }
+
+    else {
+        $(confirmPassword).removeClass('is-valid').addClass('is-invalid')
         $(passwordMatch).fadeIn('fast')
+    }
+
+    checkCanRegister()
 
 })
 
@@ -218,11 +205,16 @@ confirmPassword.addEventListener("input", () => {
 
 usernameEmailLogin.addEventListener("input", () => {
     $(message).hide().empty()
+
+    checkCanLogin()
 })
 
 passwordLogin.addEventListener('input', () => {
     $(message).hide().empty()
+    
+    checkCanLogin()
 })
+
 
 
 forgotPassword.addEventListener("click", async () => {
@@ -236,7 +228,10 @@ forgotPassword.addEventListener("click", async () => {
     currentActive.fadeOut('fast', () => {
 
         $(currentActive)[0].reset()
+        
+        $('[class*="form-control-feedback"]').hide()
         $('[class*="alert"]').hide()
+        $('[class*="form-control"]').removeClass('is-valid').removeClass('is-invalid')
 
         let currentTab = recoveryForm
 
@@ -251,7 +246,7 @@ forgotPassword.addEventListener("click", async () => {
 
         $(currentTab).fadeIn('fast').addClass('active')
         $(currentActive).removeClass('active')
-        buttons.prop('disabled', false)
+        buttons.not('[class*="mainBtn"]').prop('disabled', false)
     })
 })
 
@@ -270,15 +265,18 @@ loginSwitch.addEventListener("click", async () => {
 
         $(currentActive)[0].reset()
 
-        if (nextTabName == 'Sign-up')
+        if (nextTabName == 'Sign-up') {
+            $('[class*="form-control-feedback alert"]').hide()
             $('[class*="alert"]').hide()
+            $('[class*="form-control"]').removeClass('is-valid').removeClass('is-invalid')
+        }
 
         const nextTab = nextTabName == 'Sign-in' ? login : register
 
         $(loginSwitch).html(nextTabName === 'Sign-in' ? 'Sign-up' : 'Sign-in')
         $(nextTab).fadeIn('fast').addClass('active')
         $(currentActive).removeClass('active')
-        buttons.prop('disabled', false)
+        buttons.not('[class*="mainBtn"]').prop('disabled', false)
     })
     
 })
@@ -287,108 +285,80 @@ loginSwitch.addEventListener("click", async () => {
 
 loginButton.addEventListener("click", async e => {
 
-    console.log(signInReplace)
-
     e.preventDefault()
+
+    $(loginButton).prop('disabled', true)
 
     const ans = JSON.parse(await Promise.resolve($.post('./Login.php', { data: usernameEmailLogin.value, password: passwordLogin.value, signInReplace: signInReplace }))) // remember: rememberMe.checked,
 
-    if (ans.status == 1)
+    if (ans.status == true)
         return window.location = '/Index.php'
 
     signInReplace = ans.status == 2
 
-    $(loginButton).prop('disabled', true)
+    if (!$(message).html() || $(message).html() != ans.message) {
+        $(message).html(ans.message).fadeIn('fast', () => {
+            $(loginButton).prop('disabled', false)
+        })
+        $(message).removeClass('alert-info').addClass('alert-danger')
+    }
 
-    if (!$(message).html | $(message).html != ans)
-        $(message).html(ans.message).fadeIn('fast').removeClass('alert-info').addClass('alert-danger')
+    else {
+        $(message).show().addClass('shake').on('animationend', () => {
+            $(loginButton).prop('disabled', false)
+            $(message).removeClass('shake')
+        })
+    }
 
-
-    $(loginButton).prop('disabled', false)
 })
-
 
 
 registerButton.addEventListener("click", async e => {
 
     e.preventDefault()
 
-    const check = checkInputEmpty()
+    $(registerButton).attr('disabled', true)
 
-    if (!check)
-        return await shake(registerButton)
+    const ans = JSON.parse(await Promise.resolve($.post('./API/Register.php', { username: username.value, email: email.value, password: password.value, confirmPassword: confirmPassword.value })))
 
-    const verify = checkPattern(password.value)
-    
+    if (ans.success) {
 
-    if (verify[0]) {
-        const event = new CustomEvent("input")
-        password.dispatchEvent(event)
-        return await shake(registerButton)
+        $(register)[0].reset()
+
+        $(message).html('You have succesfully registered! Check your e-mail at ' + ans.email + ' to confirm your account.').removeClass('alert-danger').addClass('alert-success').fadeIn('fast', () => {
+            $('[class*="form-control"]').removeClass('is-valid')
+        })
+
+        return loginSwitch.click()
     }
 
-    if (password.value == confirmPassword.value && check) {
 
-        // get rid of try - catch block. testing purpose only
+    switch(ans.error) {
+        case 'userexists':
+            $(username).trigger('focusout')
+            $(email).trigger('focusout')
+            break
 
-        let ans = await Promise.resolve($.post('./API/Register.php', { username: username.value, email: email.value, password: password.value, confirmPassword: confirmPassword.value }))
+        case 'usernamePattern':
+            $(usernamePattern).css('display', 'block')
+            break
 
-        try {
-            ans = JSON.parse(ans)
-        }
+        case 'emailPattern':
+            $(emailPattern).css('display', 'block')
+            break
 
-        catch (err) {
-            console.log("Eroare")
-            console.log(ans)
-        }
-
-        if (ans.success) {
-
-            $(register)[0].reset()
-
-            $(message).html('You have succesfully registered! Check your e-mail at ' + ans.email + ' to confirm your account.').removeClass('alert-danger').addClass('alert-success').fadeIn('fast')
-
-            return loginSwitch.click()
-        }
-
-
-        switch(ans.error) {
-            case 'userexists':
-                $(username).trigger('focusout')
-                $(email).trigger('focusout')
-                break
-
-            case 'emptyfields':
-                $(emptyFields).hide()
-                break
-
-            case 'usernamePattern':
-                $(usernamePattern).css('display', 'block')
-                break
-
-            case 'emailPattern':
-                $(emailPattern).css('display', 'block')
-                break
-
-            case 'differentPasswords':
-                $(passwordMatch).css('display', 'block')
-                break
-        }
-
-        await shake(registerButton)
+        case 'differentPasswords':
+            $(passwordMatch).css('display', 'block')
+            break
     }
 
-    else {
-
-        if (check)
-            passwordMatch.style.display = "block"
-
-        await shake(registerButton)
-    }
+    $(registerButton).attr('disabled', false)
 })
 
 recoveryData.addEventListener('input', () => {
     $(recoveryMessage).hide()
+    
+    checkCanRecover()
 })
 
 
@@ -396,44 +366,48 @@ recoveryButton.addEventListener("click", async e => {
 
     e.preventDefault()
 
+    $(recoveryButton).attr('disabled', true)
 
     const ans = JSON.parse(await Promise.resolve($.post('./API/recoverPassword.php', { data: recoveryData.value })))
 
-
-    if (ans.error) {
-
+    if (ans.status == true)
+        $(recoveryMessage).removeClass('alert-danger').addClass('alert-success')
+    else
         $(recoveryMessage).removeClass('alert-success').addClass('alert-danger')
 
-        if ($(recoveryMessage).html == "" || !(recoveryMessage).html != ans.error)
-            $(recoveryMessage).html(ans.error)
-        
+    if ($(recoveryMessage).html() == "" || $(recoveryMessage).html() != ans.message) {
+        $(recoveryMessage).html(ans.message).fadeIn('fast', () => {
+            $(recoveryButton).attr('disabled', false)
+        })
     }
 
     else {
-        $(recoveryMessage).removeClass('alert-danger').addClass('alert-success')
+        $(recoveryMessage).show().addClass('shake').on('animationend', () => {
+            $(recoveryButton).attr('disabled', false)
+            $(recoveryMessage).removeClass('shake')
+        })
     }
 
-
-    $(recoveryMessage).fadeIn('fast')
-    $(recoveryMessage).html(ans.message)
 })
 
 $(() => {
     $('#username').on('focusout', () => {
         $.post('./API/check.php', { data: username.value }, invalid => {
-            if (invalid === '1')
+            if (invalid === '1') {
+                $(username).removeClass('is-valid').addClass('is-invalid')
                 $(usernameExists).fadeIn('fast')
-            else
-                $(usernameExists).hide()
+            }
+            checkCanRegister()
         })
     })
 
     $('#email').on('focusout', () => {
         $.post('./API/check.php', { data: email.value }, invalid => {
-            if (invalid === '1')
+            if (invalid === '1') {
+                $(email).removeClass('is-valid').addClass('is-invalid')
                 $(emailExists).fadeIn('fast')
-            else
-                $(emailExists).hide()
+            }
+            checkCanRegister()
         })
     })
 })

@@ -59,6 +59,7 @@
         <meta name = 'viewport' content = 'width = device-width, initial-scale = 1.0'>
 
         <link rel = 'stylesheet' type = 'text/css' href = 'CSS/onlineBanking.css'>
+        <link rel = 'stylesheet' type = 'text/css' href = 'CSS/Animations.css'>
 
         <link rel = 'stylesheet' type = 'text/css' href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css' integrity = 'sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2' crossorigin = 'anonymous'>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
@@ -201,7 +202,7 @@
 
                            <div class = 'modal-body'>
                            
-                                <div id = 'messageCreateCreditCard'></div>
+                                <div id = 'messageCreateCreditCard' class = 'text-center'></div>
 
                                <form>
                                    <div class = 'form-group'>
@@ -218,7 +219,7 @@
                            </div>
 
                            <div class = 'modal-footer'>
-                               <button type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
+                               <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
                                <button id = 'createCreditCard' type = 'button' class = 'btn btn-primary'>Create</button>
                            </div>
 

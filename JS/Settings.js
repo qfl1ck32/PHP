@@ -1,4 +1,4 @@
-var countryId = -1, stateId = -1, cityId = -1
+let countryId = -1, stateId = -1, cityId = -1
 let currentFocus
 
 const firstName = document.getElementById('firstName')
@@ -41,13 +41,13 @@ const wait = async time => {
 
 window.onload = async () => {
 
-    for (elem of allElements)
-        elem.addEventListener("focus", () => {
-            hideErrors()
-        })
-
     if (!country.value)
         return
+
+    for (const elem of allElements)
+        $(elem).on('input', () => {
+            $(emptyFields).hide()
+        })
 
     const ids = JSON.parse(await Promise.resolve($.post('./API/location.php', { getIds: true, countryName: country.value, stateName: state.value, cityName: city.value } )))
 
@@ -70,35 +70,50 @@ window.onload = async () => {
 
 const checkInputEmpty = () => {
 
-    const to_verify = [firstName, lastName, dateOfBirth, gender, address, country, city, state, file];
-    // const patterns = [ usernamePattern, emailPattern, usernameExists, emailExists];
-    let returnVal = 1
-    for (let inp of to_verify) {
-        if (inp.value.length == 0) {
-            $(emptyFields).fadeIn('fast')
-            returnVal = 0
+    const toVerify = [firstName, lastName, dateOfBirth, gender, address, country, city, state, file]
+    const bads = [badCountry, badState, badCity]
+
+    for (const bad of bads) {
+        if ($(bad).is(':visible')) {
+            $(update).attr('disabled', true)
+            $(bad).addClass('shake').on('animationend', () => {
+                $(update).attr('disabled', false)
+                $(bad).removeClass('shake')
+            })
         }
     }
 
-    if (!returnVal)
-        return 0
+    for (const inp of toVerify)
+        if (!$(inp).val().length) {
 
-    /*
-    for (let pattern of patterns) {
-        if (pattern.style.display == "block") {
-            emptyFields.style.display = "none";
-            return 0;
+            if ($(emptyFields).is(':visible')) {
+                $(update).attr('disabled', true)
+                $(emptyFields).addClass('shake').on('animationend', () => {
+                    $(emptyFields).removeClass('shake')
+                    $(update).attr('disabled', false)
+                })
+            }
+
+            else
+                $(emptyFields).fadeIn('fast')
+
+            return 0
         }
-    }
 
-    emptyFields.style.display = "none";
-    */
-    return 1;
+    $(emptyFields).hide()
+
+    return 1
 }
 
 const hideErrors = () => {
     for (elem of [badCountry, badState, badCity, emptyFields])
-        $(elem).hide()
+        if ($(elem).is(':visible')) {
+            $(update).attr('disabled', true)
+            $(elem).addClass('shake').on('animationend', () => {
+                $(elem).removeClass('shake')
+                $(update).attr('disabled', false)
+            })
+        }
 }
 
 const removeChildren = elem => {
@@ -243,11 +258,13 @@ const checkInput = async elem => {
 const handleBlurEvent = async (elem, next, next2) => {
     await wait(125)
 
+    if (!elem.value)
+        return $(elemToBad(elem)).fadeOut('fast')
+
     const ans = (await checkInput(elem)).status
     
     if (!ans) {
         empty(next, next2)
-
         $(elemToBad(elem)).fadeIn('fast')
     }
 
@@ -334,7 +351,6 @@ $(update).click(async () => {
     if (!isOk)
         return
 
-        
     for (let elem of [badCountries, badStates, badCities])
         if ($(elem).is(':visible'))
             return

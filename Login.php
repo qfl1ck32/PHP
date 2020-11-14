@@ -184,7 +184,7 @@
                     </div> -->
 
                     <div class = 'container text-center my-4'>
-                        <button id = 'loginButton' class = 'btn btn-outline-primary btn-lg text-white formbtn' type = 'submit'>Login</button>
+                        <button id = 'loginButton' disabled class = 'btn btn-outline-primary btn-lg text-white formbtn mainBtn' type = 'submit'>Login</button>
                     </div>
 
                 </form>
@@ -197,57 +197,54 @@
                     <div class = 'form-group'>
                         <label for = 'username'>Username: </label>
                         <input id = 'username' class = 'form-control' autocomplete = 'off' type = 'text' id = 'username' name = 'username'>
-                    </div>
 
-                    <div id = 'usernamePattern' class = 'alert alert-danger'>
-                        Only 2 - 15 characters.
-                    </div>
+                        <div id = 'usernamePattern' class = 'form-control-feedback text-danger font-weight-bold'>
+                            Only 2 - 15 characters.
+                        </div>
 
-                    <div id = 'usernameExists' class = 'alert alert-danger'>
-                        The username is already taken.
+                        <div id = 'usernameExists' class = 'form-control-feedback text-danger font-weight-bold'>
+                            The username is already taken.
+                        </div>
                     </div>
 
                     <div class = 'form-group'>
                         <label for = 'email'>Email: </label>
                         <input id = 'email' autocomplete = 'off' class = 'form-control' type = 'text' name = 'email'>
-                    </div>
 
-                    <div id = 'emailPattern' class = 'alert alert-danger'>
-                        Invalid e-mail.
-                    </div>
+                        <div id = 'emailPattern' class = 'form-control-feedback text-danger font-weight-bold'>
+                            Invalid e-mail.
+                        </div>
 
-                    <div id = 'emailExists' class = 'alert alert-danger'>
-                        The email is already in use.
+                        <div id = 'emailExists' class = 'form-control-feedback text-danger font-weight-bold'>
+                            The email is already in use.
+                        </div>
                     </div>
 
                     <div class = 'form-group'>
                         <label for = 'password'>Password: </label>
                         <input autocomplete = 'off' class = 'form-control' type = 'password' id = 'password' name = 'password'>
-                    </div>
 
-                    <div id = 'passwordPattern' class = 'container alert alert-danger'>
-                        Your password should contain at least:
-                        <div class = 'container'>
-                            <div class = 'container' id = 'passwordShouldContain'>
+                        <div id = 'passwordPattern' class = 'container form-control-feedback text-danger font-weight-bold'>
+                            Your password should contain at least:
+                            <div class = 'container'>
+                                <div class = 'container' id = 'passwordShouldContain'>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    
 
                     <div class = 'form-group'>
                         <label for = 'password'>Confirm password: </label>
                         <input autocomplete = 'off' class = 'form-control' type = 'password' id = 'confirmPassword' name = 'confirmPassword'>
-                    </div>
 
-                    <div id = 'passwordMatch' class = 'alert alert-danger'>
-                        Passwords do not match.
+                        <div id = 'passwordMatch' class = 'form-control-feedback text-danger font-weight-bold'>
+                            Passwords do not match.
+                        </div>
                     </div>
 
                     <div class = 'container my-4 text-center'>
-                        <button id = 'registerButton' class = 'btn btn-outline-primary btn-lg text-white formbtn' type = 'submit'>Register</button>
-                    </div>
-
-                    <div id = 'emptyFields' class = 'alert alert-danger'>
-                        There are still empty fields.
+                        <button id = 'registerButton' disabled class = 'btn btn-outline-primary btn-lg text-white formbtn mainBtn' type = 'submit'>Register</button>
                     </div>
 
                 </form>
@@ -256,7 +253,7 @@
             <div class = 'container text-white'>
                 <form class = 'recovery formTab' id = 'recoverForm' action = '/Recover.php' method = 'POST'>
 
-                    <p id = 'messageRec' class = 'alert alert-danger mt-4 mb-4'></p>
+                    <p id = 'messageRec' class = 'alert text-center alert-danger mt-4 mb-4'></p>
                     
                     <div class = 'form-group'>
                         <label for = 'username_email'>Username / Email: </label>
@@ -264,7 +261,7 @@
                     </div>
 
                     <div class = 'container text-white text-center my-4'>
-                        <button id = 'recoveryButton' class = 'btn btn-outline-primary btn-md text-white formbtn' type = 'submit'>Reset password</button>
+                        <button id = 'recoveryButton' class = 'btn btn-outline-primary btn-md text-white formbtn mainBtn' type = 'submit'>Reset password</button>
                     </div>
                 </form>
             </div>

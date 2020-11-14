@@ -5,6 +5,8 @@ const get = id => {
 const   createCreditCard = get('createCreditCard'),
         messageCreateCreditCard = get('messageCreateCreditCard'),
         createCardWithCurrency = get('createCardWithCurrency'),
+
+        closeModal = get('closeModal'),
         
         type = get('type'),
         iban = get('IBAN'),
@@ -20,7 +22,21 @@ $(createCreditCard).click(async () => {
 
     console.log(ans)
 
-    $(messageCreateCreditCard).removeClass().html(ans.message).addClass('alert').addClass(ans.status ? 'alert-success' : 'alert-danger').fadeIn('fast')
+    if ($(messageCreateCreditCard).html() != ans.message || ans.status == true)
+        $(messageCreateCreditCard).removeClass().html(ans.message).addClass('alert').addClass(ans.status ? 'alert-success' : 'alert-danger').hide().fadeIn('fast')
+
+    else {
+        $(messageCreateCreditCard).addClass('shake')
+        $(createCreditCard).attr('disabled', true)
+        $(messageCreateCreditCard).on('animationend', () => {
+            $(messageCreateCreditCard).removeClass('shake')
+            $(createCreditCard).attr('disabled', false)
+        })
+    }
+})
+
+$(closeModal).click(() => {
+    $(messageCreateCreditCard).hide()
 })
 
 
