@@ -12,9 +12,6 @@
         }
     }
 
-    echo getenv('emailPassword');
-
-
 ?>
 
 <!DOCTYPE html>
