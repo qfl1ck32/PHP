@@ -96,7 +96,7 @@ const resendVerification = async email => {
     $(message).html(ans)
 }
 
-$(username).on('change', () => {
+$(username).on('input', () => {
 
     $(usernameExists).hide()
 
