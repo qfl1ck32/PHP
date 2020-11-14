@@ -1,6 +1,8 @@
 <?php
     session_start();
 
+    include './API/mysql.php';
+
     if (!isset($_SESSION['isLogged']) || !$_SESSION['isLogged'])
         die(header('location: /404.php'));
 
