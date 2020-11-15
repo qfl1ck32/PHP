@@ -21,19 +21,24 @@
         if (!isset($data[0]))
             return Status(false, "The given IBAN either does not exist or it does not belong to any of your credit cards.");
 
-        $data = $data[0];
+        $transactions = sendQuery('select date, type, description, amount, balance, hex(reference) as reference from transactions where iban = ?', $_POST['IBAN']);
 
+        $data = $data[0];
         die(json_encode(array(
             'status' => true,
             'type' => $data['type'],
             'currency' => $data['currency'],
-            'balance' => $data['balance'] . ' ' . $data['currency']
+            'balance' => $data['balance'] . ' ' . $data['currency'],
+            'transactions' => $transactions
         )));
     }
 
     $hasSettings = sendQuery('select count(*) as c from personaldata where id = unhex(?)', $_SESSION['id'])[0]['c'];
 
     $currentCreditCards = sendQuery('select iban, type, currency, balance from creditcards where id = unhex(?);', $_SESSION['id']);
+
+    if (sizeof($currentCreditCards))
+        $currentTransactions = sendQuery('select type from transactions where iban = ?', $currentCreditCards[0]['iban']);
 
     $currencies = sendQuery('select name from currencies;');
 
@@ -138,7 +143,7 @@
         </div>
 
       
-       <div class = 'container'>
+       <div id = 'mainDiv' class = 'container'>
 
             <div class = 'container d-flex justify-content-center text-light'>
                 <h1 class = 'display-5 font-italic'>Online Banking</h1>
@@ -210,7 +215,9 @@
                                         <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'createCardWithCurrency' name = 'currency'>
                                            <?php
                                                 foreach ($currencyWithImg as $curr) {
-                                                    echo "<option value = '" . $curr['name'] . "'>" . $curr['name'] . "</option>";
+                                                    echo "<option value = '" . $curr['name'] . "'>" . $curr['name'] . "</option>\n";
+                                                    if ($curr != $currencyWithImg[sizeof($currencyWithImg) - 1])
+                                                        echo "\t\t\t\t\t\t\t\t\t\t\t\t";
                                                 }
                                            ?>
                                        </select>
@@ -229,7 +236,6 @@
 
                <div class = 'col-lg border rounded offset-lg-0 mt-4 mt-lg-0 p-4 mx-4'>
 
-
                     <?php if ($hasSettings) { ?>
                         <?php if (isset($currentCreditCards[0])) { ?>
 
@@ -240,30 +246,109 @@
                         
                             <hr>
 
-                            <div class = 'container' id = 'creditCardMainData'>
+                            <div class = 'container currentDataPage' id = 'creditCardMainData'>
                                     <div class = 'text-white'>
                                         <h5 class = 'font-weight-bold'>Account type</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'accountType'><?php echo $currentCreditCards[0]['type']; ?></h6>
+                                        <h6 class = 'ml-2 font-italic' id = 'accountType'></h6>
                                     </div>
 
                                     <div class = 'text-white mt-4'>
                                         <h5 class = 'font-weight-bold'>IBAN</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'IBAN'><?php echo $currentCreditCards[0]['iban']; ?></h6>
+                                        <h6 class = 'ml-2 font-italic' id = 'IBAN'></h6>
                                     </div>
 
                                     <div class = 'text-white mt-4'>
                                         <h5 class = 'font-weight-bold'>Currency</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'currency'><?php echo $currentCreditCards[0]['currency']; ?></h6>
+                                        <h6 class = 'ml-2 font-italic' id = 'currency'></h6>
                                     </div>
 
                                     <hr>
 
                                     <div class = 'text-white mt-4'>
                                         <h5 class = 'font-weight-bold'>Available balance</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'balance'><?php echo $currentCreditCards[0]['balance'] . ' ' . $currentCreditCards[0]['currency']; ?></h6>
+                                        <h6 class = 'ml-2 font-italic' id = 'balance'></h6>
                                     </div>
-
                             </div>
+
+                            <div class = 'row h-75 text-center' id = 'creditCardMainDataSpinner'>
+                                <div class = 'col-md-12 my-auto'>
+                                    <div id = 'spinner' class = 'spinner-grow text-primary' role = 'status'></div>
+                                </div>
+                            </div>
+
+                            
+                            <div class = 'container' id = 'creditCardTransactionsData'>
+                                <div id = 'missingTransactions' class = 'text-white text-center'>
+                                </div>
+
+                                <div class = 'text-white'>
+                                    <ul id = 'transactionsList' class = 'list-group' style = 'overflow-y: scroll;'></ul>
+                                </div>
+                            </div>
+
+
+                            <div class = 'modal fade' id = 'modalCenter2' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
+                                <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
+                                    <div class = 'modal-content'>
+
+                                        <div class = 'modal-header text-center'>
+                                            <h5 class = 'modal-title w-100' id = 'modalTitle'>Transaction details</h5>
+                                            <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
+                                                <span aria-hidden = 'true'>&times;</span>
+                                                </button>
+                                        </div>
+
+                                        <div class = 'modal-body'>
+                                            <div class = 'container bg-light'>
+                                                <div class = 'row font-weight-bold'>
+                                                    Transaction date
+                                                </div>
+                                                
+                                                <div id = 'transactionDate' class = 'row font-italic'></div>
+                                            </div>
+
+                                            <div class = 'container bg-light mt-4'>
+                                                <div class = 'row font-weight-bold'>
+                                                    Description
+                                                </div>
+
+                                                <div id = 'transactionDescription' class = 'row font-italic'></div>
+                                            </div>
+
+                                            <div class = 'container bg-light mt-4'>
+                                                <div class = 'row font-weight-bold'>
+                                                    Amount
+                                                </div>
+
+                                                <div id = 'transactionAmount' class = 'row font-italic'></div>
+                                            </div>
+
+                                            <div class = 'container bg-light mt-4'>
+                                                <div class = 'row font-weight-bold'>
+                                                    Balance
+                                                </div>
+
+                                                <div id = 'transactionBalance' class = 'row font-italic'></div>
+                                            </div>
+
+                                            <div class = 'container bg-light mt-4'>
+                                                <div class = 'row font-weight-bold'>
+                                                    Transaction Reference
+                                                </div>
+
+                                                <div id = 'transactionReference' class = 'row font-italic'></div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class = 'modal-footer'>
+                                            <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
 
                             <?php } else { ?>
 
@@ -293,8 +378,8 @@
 
                     <?php } ?>
 
-
                </div>
+
            </div>
        </div>
 
