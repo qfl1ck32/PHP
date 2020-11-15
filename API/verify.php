@@ -28,11 +28,8 @@
 
     $id = $id[0]['hex(id)'];
 
-
-    $email = sendQuery('select email from users where id = unhex(?);', $id)[0]['email'];
-
     $_SESSION['resetPassword'] = true;
-    $_SESSION['email'] = $email;
+    $_SESSION['id'] = $id;
 
     die(header('location: /Reset.php'));
 ?>
