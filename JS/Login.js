@@ -196,6 +196,11 @@ password.addEventListener("input", () => {
 
 confirmPassword.addEventListener("input", () => {
 
+    if (!$(confirmPassword).val()) {
+        $(confirmPassword).removeClass('is-invalid').removeClass('is-valid')
+        return $(passwordMatch).hide()
+    }
+
     if (password.value == confirmPassword.value) {
         $(confirmPassword).removeClass('is-invalid').addClass('is-valid')
         $(passwordMatch).hide()
@@ -209,7 +214,6 @@ confirmPassword.addEventListener("input", () => {
     checkCanRegister()
 
 })
-
 
 
 usernameEmailLogin.addEventListener("input", () => {
