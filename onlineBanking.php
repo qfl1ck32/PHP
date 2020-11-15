@@ -193,50 +193,47 @@
                     </div>
                 <?php } ?>
 
-
-               <div class = 'modal fade' id = 'modalCenter' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
-                   <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
-                       <div class = 'modal-content'>
-
-                           <div class = 'modal-header text-center'>
-                               <h5 class = 'modal-title w-100' id = 'modalTitle'>Create a new credit card</h5>
-                               <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
-                                   <span aria-hidden = 'true'>&times;</span>
-                                </button>
-                           </div>
-
-                           <div class = 'modal-body'>
-                           
-                                <div id = 'messageCreateCreditCard' class = 'text-center'></div>
-
-                               <form>
-                                   <div class = 'form-group'>
-                                        <label for = 'currency'>Currency</label>
-                                        <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'createCardWithCurrency' name = 'currency'>
-                                           <?php
-                                                foreach ($currencyWithImg as $curr) {
-                                                    echo "<option value = '" . $curr['name'] . "'>" . $curr['name'] . "</option>\n";
-                                                    if ($curr != $currencyWithImg[sizeof($currencyWithImg) - 1])
-                                                        echo "\t\t\t\t\t\t\t\t\t\t\t\t";
-                                                }
-                                           ?>
-                                       </select>
-                                   </div>
-                               </form>
-                           </div>
-
-                           <div class = 'modal-footer'>
-                               <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
-                               <button id = 'createCreditCard' type = 'button' class = 'btn btn-primary'>Create</button>
-                           </div>
-
-                       </div>
-                   </div>
-               </div>
-
                <div class = 'col-lg border rounded offset-lg-0 mt-4 mt-lg-0 p-4 mx-4'>
 
                     <?php if ($hasSettings) { ?>
+                        <div class = 'modal fade' id = 'modalCenter' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
+                            <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
+                                <div class = 'modal-content'>
+
+                                    <div class = 'modal-header text-center'>
+                                        <h5 class = 'modal-title w-100' id = 'modalTitle'>Create a new credit card</h5>
+                                        <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
+                                            <span aria-hidden = 'true'>&times;</span>
+                                            </button>
+                                    </div>
+
+                                    <div class = 'modal-body'>
+                                    
+                                            <div id = 'messageCreateCreditCard' class = 'text-center'></div>
+
+                                        <form>
+                                            <div class = 'form-group'>
+                                                    <label for = 'currency'>Currency</label>
+                                                    <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'createCardWithCurrency' name = 'currency'>
+                                                    <?php
+                                                            foreach ($currencyWithImg as $curr) {
+                                                                echo "<option value = '" . $curr['name'] . "'>" . $curr['name'] . "</option>\n";
+                                                            }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div class = 'modal-footer'>
+                                        <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
+                                        <button id = 'createCreditCard' type = 'button' class = 'btn btn-primary'>Create</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
                         <?php if (isset($currentCreditCards[0])) { ?>
 
                             <div class = 'd-flex justify-content-around mb-4'>

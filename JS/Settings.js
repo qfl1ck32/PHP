@@ -78,7 +78,7 @@ window.onload = async () => {
     })
 
     if (!country.value)
-        return
+        return $('#mainDiv').fadeIn('slow')
 
     for (const elem of [firstName, lastName, dateOfBirth, gender, address, country, state, city])
         $(elem).addClass('is-valid')

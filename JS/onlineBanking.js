@@ -34,12 +34,14 @@ const   createCreditCard = get('createCreditCard'),
         missingTransactions = get('missingTransactions')
 
 $(createCreditCard).click(async () => {
+    $(createCreditCard).attr('disabled', true)
+    
     const ans = JSON.parse(await Promise.resolve($.post('./API/createCreditCard.php', { currency: createCardWithCurrency.value })))
 
-    console.log(ans)
-
-    if ($(messageCreateCreditCard).html() != ans.message || ans.status == true)
+    if ($(messageCreateCreditCard).html() != ans.message || ans.status == true) {
         $(messageCreateCreditCard).removeClass().html(ans.message).addClass('alert').addClass(ans.status ? 'alert-success' : 'alert-danger').hide().fadeIn('fast')
+        $(createCreditCard).attr('disabled', false)
+    }
 
     else {
         $(messageCreateCreditCard).addClass('shake')
@@ -79,7 +81,7 @@ $(details).on('click', () => {
     switchBetween(details, transactionsButton, creditCardTransactionsData, creditCardMainData)
 })
 
-$(transactions).on('click', () => {
+$(transactionsButton).on('click', () => {
     switchBetween(transactionsButton, details, creditCardMainData, creditCardTransactionsData)
 })
 

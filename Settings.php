@@ -30,9 +30,10 @@
 
     function trySetImage() {
         if (!$image = @file_get_contents("Images/pendingPersonalDataImages/" . $_SESSION['id'] . ".png"))
-            $image = file_get_contents("Images/personalDataImages/" . $_SESSION['id'] . ".png");
+            $image = @file_get_contents("Images/personalDataImages/" . $_SESSION['id'] . ".png");
         
-        echo 'src = "data:image/jpg;base64,' . base64_encode($image) . '"';
+        if ($image == true)
+            echo 'src = "data:image/jpg;base64,' . base64_encode($image) . '"';
     }
 ?>
 
