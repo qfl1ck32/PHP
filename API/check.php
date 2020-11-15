@@ -1,17 +1,12 @@
 <?php
     include 'mysql.php';
+    include 'functions.php';
 
-    if (!isset($_POST['data'])) 
-        die("Invalid argument.");
+    if (c('data')) 
+        return Status(false, "Missing parameters.");
 
     $data = $_POST['data'];
     $type = strpos($data, '@') ? 'email' : 'username';
 
-    $query = $conn->prepare("select count(*) from users where " . $type . " = ?");
-    $query->bind_param('s', $data);
-    $query->execute();
-    $query->bind_result($ans);
-    $query->fetch();
-
-    echo $ans;
+    return Status(true, sendQuery("select count(*) from users where " . $type . " = ?", $data)[0]['count(*)']);
 ?>
