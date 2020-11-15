@@ -249,30 +249,30 @@
                             <div class = 'container currentDataPage' id = 'creditCardMainData'>
                                     <div class = 'text-white'>
                                         <h5 class = 'font-weight-bold'>Account type</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'accountType'></h6>
+                                        <h6 class = 'ml-2 font-italic' id = 'accountType'>N/A</h6>
                                     </div>
 
                                     <div class = 'text-white mt-4'>
                                         <h5 class = 'font-weight-bold'>IBAN</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'IBAN'></h6>
+                                        <h6 class = 'ml-2 font-italic' id = 'IBAN'>N/A</h6>
                                     </div>
 
                                     <div class = 'text-white mt-4'>
                                         <h5 class = 'font-weight-bold'>Currency</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'currency'></h6>
+                                        <h6 class = 'ml-2 font-italic' id = 'currency'>N/A</h6>
                                     </div>
 
                                     <hr>
 
                                     <div class = 'text-white mt-4'>
                                         <h5 class = 'font-weight-bold'>Available balance</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'balance'></h6>
+                                        <h6 class = 'ml-2 font-italic' id = 'balance'>N/A</h6>
                                     </div>
                             </div>
 
-                            <div class = 'row h-75 text-center' id = 'creditCardMainDataSpinner'>
+                            <div class = 'row h-50 text-center' id = 'creditCardMainDataSpinner'>
                                 <div class = 'col-md-12 my-auto'>
-                                    <div id = 'spinner' class = 'spinner-grow text-primary' role = 'status'></div>
+                                    <div id = 'spinner' class = 'spinner-grow    text-primary' role = 'status'></div>
                                 </div>
                             </div>
 

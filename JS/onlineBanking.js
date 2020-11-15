@@ -57,6 +57,7 @@ $(modalCenter).on('blur hidden.bs.modal', () => {
 
 
 const switchBetween = (button1, button2, div1, div2) => {
+    
     if ($(button1).hasClass('active'))
         return
 
@@ -87,12 +88,13 @@ window.onload = async () => {
 
     $('#mainDiv').fadeIn('slow')
 
+    $(creditCardTransactionsData).css('height', $(creditCardMainData).height() + 8)
+
     const children = $(creditCardsList).children()
 
     if (!$(children).length)
         return
 
-    $(creditCardTransactionsData).css('height', $(creditCardMainData).height())
 
     for (const child of children) {
 
@@ -103,11 +105,17 @@ window.onload = async () => {
             const IBAN = currentIBAN
 
             $('[class*="currentDataPage"]').hide()
+            $('[class*="creditCard"]').addClass('disabled')
             $(creditCardMainDataSpinner).fadeIn('fast')
             $(details).attr('disabled', true)
             $(transactionsButton).attr('disabled', true)
 
+            const timeBefore = performance.now()
             const data = JSON.parse(await Promise.resolve($.post('/onlineBanking.php', { IBAN: IBAN })))
+            const timeAfter = performance.now()
+
+            if (timeAfter - timeBefore < 500)
+                await new Promise(resolve => { setTimeout(resolve, timeBefore - timeAfter + 500) })
 
             $(iban).html(currentIBAN)
             $(type).html(data.type)
@@ -119,6 +127,7 @@ window.onload = async () => {
 
             $(creditCardMainDataSpinner).hide()
             $('[class*="currentDataPage"]').fadeIn('fast')
+            $('[class*="creditCard"]').removeClass('disabled')
             $(details).attr('disabled', false)
             $(transactionsButton).attr('disabled', false)
 
