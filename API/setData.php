@@ -11,7 +11,6 @@
         return Status(false, "Missing parameter.");
 
     $image = file_get_contents($_FILES['file']['tmp_name']);
-
     $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
 
     if (!($ext == 'jpeg' || $ext == 'png' || $ext == 'jpg'))
@@ -21,9 +20,11 @@
 
     if ($existsPending['c'])
         return Status(false, "You already have a pending change.");
+
+    file_put_contents("../Images/pendingPersonalDataImages/" . $_SESSION['id'] . ".png", $image);
     
-    $putNewData = sendQuery('insert into pendingPersonalData values (unhex(?), ?, ?, ?, ?, ?, ?, ?, ?, ?);', $_SESSION['id'], $_POST['firstName'], $_POST['lastName'], $_POST['dateOfBirth'], $_POST['gender'], $_POST['address'], $_POST['city'],
-                            $_POST['state'], $_POST['country'], $image);
+    $putNewData = sendQuery('insert into pendingPersonalData values (unhex(?), ?, ?, ?, ?, ?, ?, ?, ?);', $_SESSION['id'], $_POST['firstName'], $_POST['lastName'], $_POST['dateOfBirth'], $_POST['gender'], $_POST['address'], $_POST['city'],
+                            $_POST['state'], $_POST['country']);
     
     return Status(true, "You have succesfully made a change. You should now wait for approval.");
 ?>
