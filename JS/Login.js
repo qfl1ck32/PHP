@@ -48,17 +48,15 @@ const wait = async time => {
 }
 
 const checkCanRegister = () => {
-    
-    if ($(password).val() != $(confirmPassword).val()) {
-        $(resetButton).attr('disabled', true)
-        return false
-    }
 
     for (const elem of [username, email, password, confirmPassword])
         if (!elem.value || $(elem).hasClass('is-invalid')) {
             $(registerButton).attr('disabled', true)
             return false
         }
+
+    if ($(password).val() != $(confirmPassword).val())
+        $(registerButton).attr('disabled', true)
     
     $(registerButton).attr('disabled', false)
     return true
@@ -152,11 +150,13 @@ email.addEventListener("input", () => {
 
 password.addEventListener("input", () => {
 
+    $(confirmPassword).trigger('input')
+
     const confirmPass = confirmPassword.value
     const actualPass = password.value
     const missingProperties = checkPattern(actualPass)
 
-    if (confirmPass != "" || (confirmPass == actualPass))
+    if (confirmPass == actualPass)
         $(passwordMatch).hide()
 
     if (missingProperties.length == 0 || actualPass == "") {
@@ -200,7 +200,7 @@ password.addEventListener("input", () => {
     
 })
 
-confirmPassword.addEventListener("input", () => {
+$(confirmPassword).on("input", () => {
 
     if (!$(confirmPassword).val()) {
         $(confirmPassword).removeClass('is-invalid').removeClass('is-valid')
@@ -285,7 +285,7 @@ loginSwitch.addEventListener("click", async () => {
         $(currentActive)[0].reset()
 
         if (nextTabName == 'Sign-up') {
-            $('[class*="form-control-feedback alert"]').hide()
+            $('[class*="form-control-feedback"]').hide()
             $('[class*="alert"]').hide()
             $('[class*="form-control"]').removeClass('is-valid').removeClass('is-invalid')
         }
@@ -420,8 +420,11 @@ recoveryButton.addEventListener("click", async e => {
 
 $(() => {
     $('#username').on('focusout', () => {
-        $.post('./API/check.php', { data: username.value }, invalid => {
-            if (invalid === '1') {
+        if (!$(username).val())
+            return
+
+        $.post('./API/check.php', { data: username.value }, ans => {
+            if (JSON.parse(ans).message) {
                 $(username).removeClass('is-valid').addClass('is-invalid')
                 $(usernameExists).fadeIn('fast')
             }
@@ -430,8 +433,11 @@ $(() => {
     })
 
     $('#email').on('focusout', () => {
-        $.post('./API/check.php', { data: email.value }, invalid => {
-            if (invalid === '1') {
+        if (!$(email).val())
+            return
+
+        $.post('./API/check.php', { data: email.value }, ans => {
+            if (JSON.parse(ans).message) {
                 $(email).removeClass('is-valid').addClass('is-invalid')
                 $(emailExists).fadeIn('fast')
             }
