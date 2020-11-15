@@ -23,7 +23,7 @@
     <body class = 'bg-img'>
 
         <div class = 'container d-flex align-items-center min-vh-100'>
-            <div class = 'container w-75 text-white text-center bg-primary'>
+            <div class = 'container w-75 text-white text-center bg-primary border rounded-pill'>
                 <h3 class = 'font-italic'>Whoops!</h3>
                 <hr>
 
