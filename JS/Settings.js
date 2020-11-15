@@ -46,7 +46,7 @@ window.onload = async () => {
     for (const elem of [firstName, lastName, address, file]) {
         $(elem).on('input', () => {
             if (!$(elem).val().length)
-                $(elem).removeClass('is-invalid').removeClass('is-valid')
+                return $(elem).removeClass('is-invalid').removeClass('is-valid')
 
             if ($(elem).val().length < 2)
                 $(elem).removeClass('is-valid').addClass('is-invalid')
