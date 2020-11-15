@@ -3,31 +3,26 @@
 
     include './API/mysql.php';
     include './API/functions.php';
-
+    
     if (!$_SESSION['resetPassword'])
         die(header('location: /404.php'));
+
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (!isset($_POST['password']) || !isset($_POST['confirmPassword']) || !$_POST['password'])
-            ext('Missing fields.');
+            return Status(false, "Missing parameter(s).");
         
         if ($_POST['password'] != $_POST['confirmPassword'])
-            ext('Passwords do not match.');
-
-        $email = $_SESSION['email'];
-
-        $id = sendQuery('select hex(id) from users where email = ?;', $email)[0]['hex(id)'];
+            return Status(false, "Passwords do not match.");
 
         $hashedPassword = password_hash($_POST['password'], PASSWORD_BCRYPT);
 
-        sendQuery('update users set password = ? where id = unhex(?);', $hashedPassword, $id);
+        sendQuery('update users set password = ? where id = unhex(?);', $hashedPassword, $_SESSION['id']);
         unset($_SESSION['resetPassword']);
 
-        die(json_encode(array(
-            'success' => true,
-            'message' => 'Done! You have succesfully changed your password.<br>You can now log in with the new credentials.'
-        )));
+
+        return Status(true, "Done! You have succesfully changed your password.<br>You can now log in with the new credentials.");
     }
 ?>
 
@@ -39,6 +34,7 @@
         <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
 
         <link rel = "stylesheet" type = "text/css" href = "CSS/Reset.css">
+        <link rel = 'stylesheet' type = 'text/css' href = 'CSS/Animations.css'>
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel = 'stylesheet' type = 'text/css' href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css' integrity = 'sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2' crossorigin = 'anonymous'>
@@ -98,40 +94,38 @@
                 Reset password
             </div>
 
-            <p id = 'message' class = 'alert alert-danger text-center'></p>
+            <div id = 'message' class = 'alert alert-danger text-center mb-4 mt-4'></div>
 
             <div class = 'container text-white'>
                 <form class = "reset" id = "reset_form" action = "/Reset.php" method = "POST">
 
 
-                    <div class = "form-group">
-                        <label for = "password">Password: </label>
-                        <input id = "password" class = "form-control" type = "password" name = "password">
-                    </div>
+                    <div class = 'form-group'>
+                        <label for = 'password'>Password: </label>
+                        <input autocomplete = 'off' class = 'form-control' type = 'password' id = 'password' name = 'password'>
 
-                    <div class = "form-group">
-                        <label for = "confirm_password">Confirm password: </label>
-                        <input id = "confirm_password" class = "form-control" type = "password" name = "confirm_password">
-                    </div>
-
-                    <div id = "password_pattern" class = "container alert alert-danger">
-                        Your password should contain at least:
-                        <div class = "container">
-                            <div class = "container" id = "password_should_contain">
+                        <div id = 'passwordPattern' class = 'container form-control-feedback text-danger font-weight-bold'>
+                            Your password should contain at least:
+                            <div class = 'container'>
+                                <div class = 'container' id = 'passwordShouldContain'>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    
 
-                    <div id = "password_match" class = "alert alert-danger">
-                        Passwords do not match.
+                    <div class = 'form-group'>
+                        <label for = 'password'>Confirm password: </label>
+                        <input autocomplete = 'off' class = 'form-control' type = 'password' id = 'confirmPassword' name = 'confirmPassword'>
+
+                        <div id = 'passwordMatch' class = 'form-control-feedback text-danger font-weight-bold'>
+                            Passwords do not match.
+                        </div>
                     </div>
 
-                    <div id = "emptyFields" class = "alert alert-danger">
-                        There are still empty fields.
-                    </div>
 
                     <div class = "container text-center">
-                        <button id = "reset_button" class = "btn btn-outline-primary btn-lg mb-4 text-white" type = "submit">Change password</button>
+                        <button id = "reset_button" disabled class = "btn btn-outline-primary btn-md mb-4 text-white" type = "submit">Change password</button>
                     </div>
 
 

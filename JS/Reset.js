@@ -1,174 +1,148 @@
-const password = document.getElementById("password")
-const confirmPassword = document.getElementById("confirm_password")
-const resetButton = document.getElementById("reset_button")
-
-const passwordPattern = document.getElementById("password_pattern")
-const passwordMatch = document.getElementById("password_match")
-const passwordShouldContain = document.getElementById("password_should_contain")
-
-const emptyFields = document.getElementById('emptyFields')
-const message = document.getElementById('message')
-
-const checkInputEmpty = () => {
-
-    const to_verify = [password, confirmPassword]
-    const patterns = [passwordPattern]
-
-    for (let inp of to_verify) {
-        if (inp.value.length == 0) {
-            $(emptyFields).fadeIn('fast')
-            return 0
-        }
-    }
-
-    for (let pattern of patterns) {
-        if (pattern.style.display == "block") {
-            $(emptyFields).hide()
-            return 0
-        }
-    }
-
-    $(emptyFields).hide()
-
-    return 1
+const get = elem => {
+    return document.getElementById(elem)
 }
 
+const   password = get("password"),
+        confirmPassword = get("confirmPassword"),
+        resetButton = get("reset_button"),
+
+        passwordPattern = get("passwordPattern"),
+        passwordMatch = get("passwordMatch"),
+        passwordShouldContain = get("passwordShouldContain"),
+
+        message = get('message')
+
+
 const checkPattern = password => {
-    const missing = ["one capital letter", "6 characters"]
-    let password_needs = []
+    let passwordNeeds = []
 
-    let upper = false, pattern_invalid = false;
-    for (let i = 0; i < password.length; ++i) {
-        if (/[A-Z]/.test(password[i])) {
-            upper = true
-            break
+    if (password.toLowerCase() === password)
+        passwordNeeds.push("one capital letter")
+    
+    if (password.length < 6)
+        passwordNeeds.push("at least 6 characters")
+
+    return passwordNeeds
+}
+
+const checkCanReset = () => {
+    for (const elem of [password, confirmPassword])
+        if (!$(elem).val() || $(elem).hasClass('is-invalid')) {
+            $(resetButton).attr('disabled', true)
+            return false
         }
-    }
 
-    if (!upper) {
-        password_needs.push(missing[0])
-        pattern_invalid = true
-    }
-
-    if (password.length < 6) {
-        password_needs.push(missing[1])
-        pattern_invalid = true
-    }
-
-    return [pattern_invalid, password_needs]
+    $(resetButton).attr('disabled', false)
+    return true
 }
 
 password.addEventListener("input", () => {
 
-    $(emptyFields).hide()
+    const confirmPass = confirmPassword.value
+    const actualPass = password.value
+    const missingProperties = checkPattern(actualPass)
 
+    if (confirmPass != "" || (confirmPass == actualPass))
+        $(passwordMatch).hide()
 
-    const confirm_pass = confirmPassword.value;
-    const actual_pass = password.value;
-    const verify = checkPattern(actual_pass);
+    if (missingProperties.length == 0 || actualPass == "") {
+        $(password).removeClass('is-invalid').addClass('is-valid')
 
-    if (confirm_pass != "" || (confirm_pass == actual_pass)) {
-        const event = new CustomEvent("input");
-        confirmPassword.dispatchEvent(event);
-    }
+        if (actualPass == "")
+            $(password).removeClass('is-valid')
 
-    if (verify[0] && actual_pass != "") {
-        const childs_text = [];
-        const childs = passwordShouldContain.querySelectorAll('li');
-
-        if (childs != null)
-            for (let li of childs)
-                childs_text.push(li.innerHTML);
-
-        for (let current_missing_pattern of childs) {
-            if (!(verify[1].includes(current_missing_pattern.innerHTML))) {
-                childs[0].parentNode.removeChild(current_missing_pattern);
-            }
-        }
-
-        $(passwordPattern).fadeIn('fast')
-
-        for (let i = 0; i < verify[1].length; ++i) {
-            if (!childs_text.includes(verify[1][i])) {
-                const li = document.createElement("li");
-                li.innerText = verify[1][i];
-                li.className += "fade_in";
-                passwordShouldContain.appendChild(li);
-            }
-        }
-    }
-    else {
-        $(passwordPattern).hide()
-        $(passwordShouldContain).html("")
+        
+        checkCanReset()
+        return $(passwordPattern).hide()
     }
     
+        
+    const childNodeProperty = []
+    const allChildren = passwordShouldContain.querySelectorAll('li')
+
+    if (allChildren != null)
+        for (let li of allChildren)
+            childNodeProperty.push(li.innerHTML)
+
+    for (let current_missing_pattern of allChildren) {
+        if (!(missingProperties.includes(current_missing_pattern.innerHTML))) {
+            allChildren[0].parentNode.removeChild(current_missing_pattern)
+        }
+    }
+
+    for (let i = 0; i < missingProperties.length; ++i) {
+        if (!childNodeProperty.includes(missingProperties[i])) {
+            const li = document.createElement("li")
+            li.innerText = missingProperties[i]
+            li.className += "fade_in"
+            passwordShouldContain.appendChild(li)
+        }
+    }
+
+    $(password).removeClass('is-valid').addClass('is-invalid')
+    $(passwordPattern).fadeIn('fast')
+
+    checkCanReset()
 })
 
 confirmPassword.addEventListener("input", () => {
 
-    $(emptyFields).hide()
-
-    const actual_pass = password.value;
-    const confirm_pass = confirmPassword.value;
-
-    if (actual_pass == confirm_pass)
-        $(passwordMatch).hide()
-    else
-        $(passwordMatch).fadeIn('fast')
-
-})
-
-function check_input_empty() {
-
-    const to_verify = [password, confirm_password];
-
-    for (let inp of to_verify) {
-        if (inp.value.length == 0) {
-            $(reset_button).prop('disabled', true)
-            return 0;
-        }
+    if (!$(confirmPassword).val()) {
+        $(confirmPassword).removeClass('is-invalid').removeClass('is-valid')
+        return $(passwordMatch).hide()
     }
 
-    $(reset_button).prop('disabled', false)
+    if (password.value == confirmPassword.value) {
+        $(confirmPassword).removeClass('is-invalid').addClass('is-valid')
+        $(passwordMatch).hide()
+    }
 
-    return 1;
-}
+    else {
+        $(confirmPassword).removeClass('is-valid').addClass('is-invalid')
+        $(passwordMatch).fadeIn('fast')
+    }
+
+    checkCanReset()
+
+})
 
 resetButton.addEventListener("click", async e => {
 
     e.preventDefault()
 
-    const check = checkInputEmpty()
-
-    if (!check)
+    if (!checkCanReset())
         return
 
-    const verify = checkPattern(password.value)
-    
+    $(resetButton).attr('disabled', true)
 
-    if (verify[0]) {
-        const event = new CustomEvent("input")
-        password.dispatchEvent(event)
-        return
-    }
+    const ans = JSON.parse(await Promise.resolve($.post('/Reset.php', { password: password.value, confirmPassword: confirmPassword.value })))
 
-    if (password.value == confirmPassword.value && check) {
-        let ans = JSON.parse(await Promise.resolve($.post('/Reset.php', { password: password.value, confirmPassword: confirmPassword.value })))
-
-        if (ans.error) {
-            if (ans.error != message.innerHTML)
-                message.innerHTML = ans.error
-
-            return
+    if (ans.status == false) {
+        console.log("Dap. Ai eroare.")
+        console.log(ans.message)
+        console.log(message.innerHTML)
+        if (ans.message != message.innerHTML) {
+            $(message).html(ans.message).fadeIn('fast')
+            $(resetButton).attr('disabled', false)
         }
 
+        else {
+            $(message).addClass('shake').on('animationend', () => {
+                $(message).removeClass('shake')
+                $(resetButton).attr('disabled', false)
+            })
+        }
 
-        $(message).html(ans.message).removeClass('alert-danger').addClass('alert-success').fadeIn('fast')
-        
-        await new Promise(resolve => {
-            setTimeout(resolve, 2000)
-        })
-
-        return window.location.href = '/Login.php';
+        return
     }
+
+
+    $(message).html(ans.message).removeClass('alert-danger').addClass('alert-success').fadeIn('fast')
+    
+    await new Promise(resolve => {
+        setTimeout(resolve, 2000)
+    })
+
+    return window.location.href = '/Login.php';
+
 })

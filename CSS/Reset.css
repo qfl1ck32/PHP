@@ -7,6 +7,6 @@
     overflow-x: hidden;
 }
 
-#message, .alert {
+#message, .alert, .form-control-feedback {
     display: none;
 }
