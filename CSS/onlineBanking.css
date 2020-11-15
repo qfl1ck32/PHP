@@ -25,3 +25,20 @@
 .pre {
     white-space: pre;
 }
+
+#creditCardTransactionsData {
+    display: none;
+}
+
+#mainDiv {
+    display: none;
+}
+
+#missingTransactions {
+    display: none;
+}
+
+#spinner {
+    height: 4vw;
+    width: 4vw;
+}
