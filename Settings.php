@@ -27,6 +27,13 @@
             $pending = false;
         }
     }
+
+    function trySetImage() {
+        if (!$image = @file_get_contents("Images/pendingPersonalDataImages/" . $_SESSION['id'] . ".png"))
+            $image = file_get_contents("Images/personalDataImages/" . $_SESSION['id'] . ".png");
+        
+        echo 'src = "data:image/jpg;base64,' . base64_encode($image) . '"';
+    }
 ?>
 
 <!DOCTYPE html>
@@ -114,7 +121,7 @@
         </div>
 
     
-        <div class = "container col-10 col-sm-6 col-xl-3 col-lg-5 border border-white rounded text-white mb-4">
+        <div id = 'mainDiv' class = "container col-10 col-sm-6 col-xl-3 col-lg-5 border border-white rounded text-white mb-4">
 
             <div id = "personalInfoData" class = "container">
 
@@ -187,7 +194,7 @@
 
                 <div class = "form-group">
                     <div class = "container text-center" id = "wrapImage">
-                        <img <?php trySet('image'); ?> class = 'img-thumbnail' id = 'image' name = 'image'></img>
+                        <img <?php trySetImage(); ?> class = 'img-thumbnail' id = 'image' name = 'image'></img>
                     </div>
                     <div class = 'container text-center'>
                         <input class = 'form-control-file mt-4' type = "file" accept = 'image/png,image/jpeg' id = "file" name = "file">
