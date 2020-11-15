@@ -26,6 +26,12 @@ const checkPattern = password => {
 }
 
 const checkCanReset = () => {
+
+    if ($(password).val() != $(confirmPassword).val()) {
+        $(resetButton).attr('disabled', true)
+        return false
+    }
+
     for (const elem of [password, confirmPassword])
         if (!$(elem).val() || $(elem).hasClass('is-invalid')) {
             $(resetButton).attr('disabled', true)

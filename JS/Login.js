@@ -48,6 +48,12 @@ const wait = async time => {
 }
 
 const checkCanRegister = () => {
+    
+    if ($(password).val() != $(confirmPassword).val()) {
+        $(resetButton).attr('disabled', true)
+        return false
+    }
+
     for (const elem of [username, email, password, confirmPassword])
         if (!elem.value || $(elem).hasClass('is-invalid')) {
             $(registerButton).attr('disabled', true)
