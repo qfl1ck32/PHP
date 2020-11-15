@@ -2,11 +2,11 @@
     include 'mysql.php';
     include 'functions.php';
 
-    if (c('data')) 
+    if (c('data') || c('type')) 
         return Status(false, "Missing parameters.");
 
-    $data = $_POST['data'];
-    $type = strpos($data, '@') ? 'email' : 'username';
+    if ($_POST['type'] != 'username' && $_POST['type'] != 'email')
+        return Status(false, "Wrong type.");
 
-    return Status(true, sendQuery("select count(*) from users where " . $type . " = ?", $data)[0]['count(*)']);
+    return Status(true, sendQuery("select count(*) from users where " . $_POST['type'] . " = ?", $_POST['data'])[0]['count(*)']);
 ?>
