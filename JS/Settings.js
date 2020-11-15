@@ -101,6 +101,9 @@ window.onload = async () => {
             $(elem).prop('disabled', true)
         }
     }
+
+    $('#mainDiv').fadeIn('slow')
+
 }
 
 const checkCanUpdate = () => { 
@@ -133,7 +136,7 @@ const removeAllChildren = () => {
 
 const removeActive = elem => {
     for (let i = 0; i < elem.length; ++i)
-        elem[i].classList.remove('autocompleteSelected')
+        elem[i].classList.remove('bg-primary')
 }
 
 const empty = (...elems) => {
@@ -157,10 +160,11 @@ const addActive = elem => {
 
     if (currentFocus >= elem.length)
         currentFocus = 0
+
     else if (currentFocus < 0)
             currentFocus = elem.length - 1
 
-    elem[currentFocus].classList.add('autocompleteSelected')
+    elem[currentFocus].classList.add('bg-primary')
 }
 
 const elemToName = elem => {
@@ -204,7 +208,7 @@ const createAutocomplete = (data, from, target, id) => {
     for (let elem of data) {
         const potential = document.createElement('div')
 
-        potential.className = 'selectElement'
+        potential.className = 'selectElement rounded'
 
         potential.innerHTML = '<a href = "#" class = "text-white text-center font-italic" <b>' + elem.name.substr(0, from.value.length) + '</b>' + elem.name.substr(from.value.length) + '</a>'
 
@@ -226,7 +230,7 @@ const handleSelection = async (e, elem) => {
     
     if (child)
         child = child.getElementsByTagName("div");
-    
+
     switch (e.keyCode) {
         case 40:
             ++currentFocus
