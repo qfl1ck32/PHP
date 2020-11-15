@@ -423,7 +423,7 @@ $(() => {
         if (!$(username).val())
             return
 
-        $.post('./API/check.php', { data: username.value }, ans => {
+        $.post('./API/check.php', { data: username.value, type: 'username' }, ans => {
             if (JSON.parse(ans).message) {
                 $(username).removeClass('is-valid').addClass('is-invalid')
                 $(usernameExists).fadeIn('fast')
@@ -436,7 +436,7 @@ $(() => {
         if (!$(email).val())
             return
 
-        $.post('./API/check.php', { data: email.value }, ans => {
+        $.post('./API/check.php', { data: email.value, type: 'email' }, ans => {
             if (JSON.parse(ans).message) {
                 $(email).removeClass('is-valid').addClass('is-invalid')
                 $(emailExists).fadeIn('fast')
