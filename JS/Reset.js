@@ -27,10 +27,8 @@ const checkPattern = password => {
 
 const checkCanReset = () => {
 
-    if ($(password).val() != $(confirmPassword).val()) {
+    if ($(password).val() != $(confirmPassword).val())
         $(resetButton).attr('disabled', true)
-        return false
-    }
 
     for (const elem of [password, confirmPassword])
         if (!$(elem).val() || $(elem).hasClass('is-invalid')) {
@@ -44,11 +42,13 @@ const checkCanReset = () => {
 
 password.addEventListener("input", () => {
 
+    $(confirmPassword).trigger('input')
+
     const confirmPass = confirmPassword.value
     const actualPass = password.value
     const missingProperties = checkPattern(actualPass)
 
-    if (confirmPass != "" || (confirmPass == actualPass))
+    if (confirmPass == actualPass)
         $(passwordMatch).hide()
 
     if (missingProperties.length == 0 || actualPass == "") {
@@ -91,7 +91,7 @@ password.addEventListener("input", () => {
     checkCanReset()
 })
 
-confirmPassword.addEventListener("input", () => {
+$(confirmPassword).on("input", () => {
 
     if (!$(confirmPassword).val()) {
         $(confirmPassword).removeClass('is-invalid').removeClass('is-valid')
