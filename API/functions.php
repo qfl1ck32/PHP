@@ -11,11 +11,18 @@
         )));
     }
 
-    function Status($status, $message = 0) {
+    function Status($status, $message = 0, ...$others) {
         $ans = array('status' => $status);
 
         if ($message)
             $ans['message'] = $message;
+
+        $i = 0;
+
+        foreach ($others as $other) {
+            $ans['arg' . $i] = $other;
+            $i = $i + 1;
+        }
 
         return die(json_encode($ans));
     }
