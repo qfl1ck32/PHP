@@ -107,7 +107,7 @@
     $IBAN = $countryCode . $checkSum . $bankIdentifier . $sortCode . $accountNumber;
 
 
-    sendQuery('insert into creditcards values (unhex(?), ?, "Current Account", ?, 0);', $_SESSION['id'], $IBAN, $_POST['currency']);
+    sendQuery('insert into creditcards values (unhex(?), ?, "Current Account", ?, 10);', $_SESSION['id'], $IBAN, $_POST['currency']);
 
     return Status(true, "You have succesfully created a new credit card for " . $_POST['currency'] . "<br>with IBAN " . $IBAN . ".<br>Refresh the page in order to see the changes.");
 
