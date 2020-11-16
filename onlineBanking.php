@@ -16,6 +16,117 @@
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+        if (!c('simulateTransaction')) {
+            if (c('fromIBAN') || c('toIBAN') || c('description') || c('amount'))
+                return Status(false, "Missing parameter(s).");
+
+            if (!is_numeric($_POST['amount']) || $_POST['amount'] <= 0)
+                return Status(false, "Invalid amount.");
+
+            if (strlen($_POST['description']) > 32)
+                return Status(false, "Description too long.");
+
+            $checkIsHisIban = sendQuery('select balance from creditcards where IBAN = ? and id = unhex(?);', $_POST['fromIBAN'], $_SESSION['id']);
+
+            if (!isset($checkIsHisIban[0])) {
+                return Status(false, "Invalid sender IBAN.");
+            }
+
+            if ($_POST['amount'] > $checkIsHisIban[0]['balance'])
+                return Status(false, "You are trying to send more money than your current balance.");
+
+            return Status(false, 'i se pare ok');
+
+            $checkIbanExists = sendQuery('select hex(id) as id from creditcards where IBAN = ?;', $_POST['toIBAN']);
+
+            if (!isset($checkIbanExists))
+                return Status(false, "The given IBAN does not belong to anyone.");
+
+            if ($checkIbanExists[0]['id'] === $_SESSION['id'])
+                return Status(false, "You can not send money to yourself.");
+
+            
+            $senderCurrency = substr($_POST['fromIBAN'], 8, 3);
+            $receiverCurrency = substr($_POST['toIBAN'], 8, 3);
+
+            $amountToSend = 0;
+
+            if ($senderCurrency != $receiverCurrency) {
+
+                $exchangeRate = json_decode(file_get_contents('https://api.exchangeratesapi.io/latest?symbols=' . $receiverCurrency . '&base=' . $senderCurrency));
+                $date = $exchangeRate -> {'date'};
+                $convertedCurrency = $exchangeRate -> {'rates'} -> {$receiverCurrency};
+
+                if (isset($_POST['ignoreCurrencyConvert']) && $_POST['ignoreCurrencyConvert'] == "true") {
+                    $amountToSend = round($_POST['amount'] * $convertedCurrency, 2);
+                }
+
+                else {
+                
+                    $checkHaveReceiverCurrency = sendQuery('select IBAN from creditcards where id = unhex(?) and substr(iban, 9, 3) = ?;', $_SESSION['id'], $receiverCurrency);
+
+                    if (isset($checkHaveReceiverCurrency[0])) {
+                        return Status(-1, "You have other credit card(s) with the same currency.<br>If you wish to send money from one of those, feel free to do so by clicking one of them."
+                        . "<br>Otherwise, press the 'Simulate' button again to send from current chosen credit card.", $checkHaveReceiverCurrency, 0);
+                    }
+
+                    $receiverId = sendQuery('select hex(id) as id from creditcards where IBAN = ?', $_POST['toIBAN'])[0]['id'];
+                    $checkHasSenderCurrency = sendQuery('select IBAN from creditcards where id = unhex(?) and substr(iban, 9, 3) = ?;', $receiverId, $senderCurrency);
+
+                    if (isset($checkHasSenderCurrency[0]))
+                        return Status(-1, "The receiver has other credt card(s) with the same currency.<br>If you wish to send money to one of those, feel free to do so by clicking one of them."
+                        . "<br>Otherwise, press the 'Simulate' button again to send from current chosen credit card.", $checkHasSenderCurrency, 1);
+
+                    return Status(false, "The other user has no " . $senderCurrency . " credit card, and neither do you have a " . $receiverCurrency . " one.<br>If you wish to automatically convert the currencies <br>and send "
+                                        . round($convertedCurrency * $_POST['amount'], 2) . ' ' . $receiverCurrency . ', please hit the "Simulate" button again.<br>'
+                                        . "1 " . $senderCurrency . ' = ' . $convertedCurrency . ' ' . $receiverCurrency . ' (' . $date . ')');
+
+                }
+            }
+
+            if ($amountToSend == 0)
+                $amountToSend = $_POST['amount'];
+
+            $transactionReference = strtoupper(bin2hex(random_bytes(16)));
+
+            sendQuery('update creditcards set balance = balance + ? where iban = ?;', $amountToSend, $_POST['toIBAN']);
+            sendQuery('update creditCards set balance = balance - ? where iban = ?;', $_POST['amount'], $_POST['fromIBAN']);
+
+            $sendBalance = sendQuery('select balance from creditcards where iban = ?;', $_POST['fromIBAN'])[0]['balance'];
+            $receiveBalance = sendQuery('select balance from creditcards where iban = ?;', $_POST['toIBAN'])[0]['balance'];
+
+            $type1 = "Sent money";
+            $description1 = $_POST['description'];
+
+            $type2 = "Received money";
+            $description2 = $description1;
+
+            sendQuery('insert into transactions values (?, ?, ?, curdate(), ?, ?, ?), (?, ?, ?, curdate(), ?, ?, ?);', 
+                        $transactionReference, $_POST['fromIBAN'], $type1, $description1, $_POST['amount'], $sendBalance,
+                        $transactionReference, $_POST['toIBAN'], $type2, $description1, $_POST['amount'], $receiveBalance);
+
+            return Status(true, "The transaction succesfully took place.<br>Check the 'transactions' tab for more details.");
+        }
+
+        if (!c('checkIBANExists')) {
+            if (c('IBAN'))
+                return Status(false, "Missing parameter.");
+
+            $checkIbanIsSelf = sendQuery('select hex(id) as id from creditcards where IBAN = ?', $_POST['IBAN']);
+
+            // make more efficient - only one query
+
+            if (isset($checkIbanIsSelf[0]) && $checkIbanIsSelf[0]['id'] == $_SESSION['id'])
+                return Status(false, "You can not send money to yourself.");
+
+            $ibanExists = sendQuery('select concat(firstName, " ", lastName) as name from personalData where id = (select id from creditcards where IBAN = ?);', $_POST['IBAN']);
+
+            if (!sizeof($ibanExists))
+                return Status(false, "There is no credit card account with the given IBAN.");
+
+            return Status(true, $ibanExists[0]['name']);
+        }
+
         $data = sendQuery('select type, currency, balance from creditcards where id = unhex(?) and iban = ?', $_SESSION['id'], $_POST['IBAN']);
 
         if (!isset($data[0]))
@@ -24,11 +135,15 @@
         $transactions = sendQuery('select date, type, description, amount, balance, hex(reference) as reference from transactions where iban = ?', $_POST['IBAN']);
 
         $data = $data[0];
+
+        $currentCurrencyImg = (glob('Images/countryFlags/' . substr($data['currency'], 0, 2) . '.png'))[0];
+
         die(json_encode(array(
             'status' => true,
             'type' => $data['type'],
             'currency' => $data['currency'],
             'balance' => $data['balance'] . ' ' . $data['currency'],
+            'img' => $currentCurrencyImg,
             'transactions' => $transactions
         )));
     }
@@ -114,7 +229,7 @@
                             <?php
                                 if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'])
                                     echo " <li class = 'nav-item'>
-                                                <a id = 'settings' href = '#' class = 'nav-link'>Settings</a>
+                                                <a id = 'personalData' href = '#' class = 'nav-link'>Personal Data</a>
                                             </li>";
                             ?>
 
@@ -153,7 +268,7 @@
 
            <div class = 'row py-4'>
                <?php if ($hasSettings) { ?>
-                    <div style = 'overflow: hidden;' class = 'col-12 col-lg-3 offset-lg-0 text-white'>
+                    <div style = 'overflow: hidden;' class = 'col-12 col-lg-3 offset-lg-0'>
                         <ul id = 'creditCardsList' style = 'max-height: 288px; overflow-y: scroll;' class = 'list-group flex-lg-column flex-row pb-2 pr-2'>
 
                             <?php
@@ -173,7 +288,7 @@
                                         </div>
                                         
                                         <div class = 'col text-right'>
-                                            <small><img style = 'width: 10px; height: 10px;' class = 'rounded' src = <?php echo "./Images/countryFlags/" . substr($currentCreditCards[$i]['currency'], 0, 2) . ".png"; ?> ></small>
+                                            <small><img style = 'width: 15px; height: 15px;' class = 'rounded' src = <?php echo "./Images/countryFlags/" . substr($currentCreditCards[$i]['currency'], 0, 2) . ".png"; ?> ></small>
                                         </div>
                                     </div>
 
@@ -189,6 +304,93 @@
 
                         <div class = 'container pt-4 text-center'>
                             <button id = 'createCard' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white' data-toggle = 'modal' data-target = '#modalCenter'>Create a new credit card</button>
+                            <?php if (sizeof($currentCreditCards)) { ?>
+                                <button id = 'simulateTransaction' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white mt-2 mt-lg-2 mt-sm-0' data-toggle = 'modal' data-target = '#modalCenter3'>Simulate a transaction</button>
+                                
+                                <div class = 'modal fade' id = 'modalCenter3' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
+                                    <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
+                                        <div class = 'modal-content'>
+
+                                            <div class = 'modal-header'>
+                                                <h5 class = 'modal-title w-100' id = 'modalTitle'>Simulate a transaction</h5>
+                                                <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
+                                                    <span aria-hidden = 'true'>&times;</span>
+                                                    </button>
+                                            </div>
+
+                                            <div class = 'modal-body'>
+                                            
+                                                <div id = 'messageSimulateTransaction' class = 'text-center mb-2'></div>
+
+                                                <div class = 'form-group text-left'>
+
+                                                    <div class = 'd-flex justify-content-around mb-2'>
+                                                        <button class = 'btn btn-outline-primary btn-md border rounded-pill active' id = 'sendMoney'>Send money</button>
+                                                        <button class = 'btn btn-outline-primary btn-md border rounded-pill' id = 'buyItem'>Buy item</button>
+                                                    </div>
+
+                                                    <hr>
+
+                                                    <label for = 'transactionIBANFrom'>Selected credit card</label>
+
+                                                    <div class = 'input-group'>
+                                                        <div class = 'input-group-prepend'>
+                                                            <span class = 'input-group-text'>
+                                                                <img style = 'width: 16px; height: 16px;' id = 'transactionSimImage'></img>
+                                                            </span>
+                                                        </div>
+
+                                                        <input disabled class = 'form-control text-center' id = 'transactionSimIBANFrom' name = 'transactionSimIBANFrom'></input>
+
+                                                        <div class = 'input-group-append'>
+                                                            <span id = 'transactionSimBalance' class = 'input-group-text'></span>
+                                                        </div>
+                                                    </div>
+
+                                                    <hr>
+
+                                                    <div id = 'sendMoneyContainer' class = 'form-group currentContainer'>
+                                                        <label for = 'transactionSimIBANTo'>Receiver's IBAN</label>
+                                                        <input class = 'form-control' name = 'transactionSimIBANTo' id = 'transactionSimIBANTo'>
+
+                                                        <label for = 'transactionSimReceiverName'>Reicever's name</label>
+                                                        <input disabled class = 'form-control' name = 'transactionSimReceiverName' id = 'transactionSimReceiverName' placeholder = 'This will be autocompleted after you fill in the IBAN.'>
+
+                                                        <label for = 'transactionSimDescription'>Description</label>
+                                                        <input class = 'form-control' name = 'transactionSimDescription' id = 'transactionSimDescription'>
+
+                                                        <label for = 'transactionSimAmount'>Amount</label>
+
+                                                        <div class = 'input-group'>
+                                                            <input class = 'form-control' name = 'transactionSimAmount' id = 'transactionSimAmount'>
+
+                                                            <div class = 'input-group-append'>
+                                                                <span id = 'transactionSimCurrency' class = 'input-group-text'></span>
+                                                            </div>
+                                                        </div>
+                                                        
+
+                                                    </div>
+
+                                                    <div id = 'buyItemContainer' style = 'display: none;' class = 'form-group'>
+                                                        <label for = 'transactionSimItem'>Choose an item</label>
+                                                        <input class = 'form-control'>
+                                                    </div>
+
+                                                </div>
+                                                
+                                            </div>
+
+                                            <div class = 'modal-footer'>
+                                                <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
+                                                <button disabled id = 'simulateTransactionButton' type = 'button' class = 'btn btn-primary'>Simulate</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            <?php } ?>
                         </div>
                     </div>
                 <?php } ?>
