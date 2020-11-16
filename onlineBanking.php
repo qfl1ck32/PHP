@@ -479,7 +479,7 @@
                                 </div>
 
                                 <div class = 'text-white'>
-                                    <ul id = 'transactionsList' class = 'list-group' style = 'overflow-y: scroll;'></ul>
+                                    <ul id = 'transactionsList' class = 'list-group' style = 'max-height: 288px; overflow-y: scroll;'></ul>
                                 </div>
                             </div>
 

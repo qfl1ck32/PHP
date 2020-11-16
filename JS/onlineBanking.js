@@ -168,6 +168,16 @@ $(simulateTransactionButton).on('click', async () => {
         $(messageSimulateTransaction).removeClass('alert-danger').removeClass('alert-warning').addClass('alert').addClass('alert-success').html(ans.message).fadeIn('fast', () => {
             $(simulateTransactionButton).attr('disabled', false)
         })
+
+        const children = $(creditCardsList).children()
+
+        for (const child of children) {
+            if ($(child).hasClass('active')) {
+                $(child).trigger('click')
+                break
+            }
+        }
+
         ignoreCurrencyConvert = false
     }
 
@@ -200,7 +210,7 @@ $(simulateTransactionButton).on('click', async () => {
                                 const thisIban = $(child).find('.IBAN').html()
 
                                 if (thisIban == $(newChild).html())
-                                    $(child).trigger('click', [true])
+                                    $(child).trigger('click')
                             }
                         }
                     })
@@ -217,15 +227,10 @@ $(simulateTransactionButton).on('click', async () => {
 
         }
 
-        else {
+        else
             $(messageSimulateTransaction).removeClass('alert-success').removeClass('alert-warning').addClass('alert').addClass('alert-danger').html(ans.message).fadeIn('fast', () => {
                 $(simulateTransactionButton).attr('disabled', false)
             })
-
-            const child = $(creditCardsList).children().find('.active')
-
-            $(child).trigger('click')
-        }
         
         ignoreCurrencyConvert = true
     }
@@ -307,7 +312,7 @@ window.onload = async () => {
 
         const currentIBAN = $(child).find('.IBAN').html()
 
-        $(child).on('click', async (e, arg) => {
+        $(child).on('click', async () => {
 
             const IBAN = currentIBAN
 
@@ -332,7 +337,9 @@ window.onload = async () => {
             $(transactionSimBalance).html(data.balance)
             $(transactionSimCurrency).html(data.currency)
 
-            $(child).find('.creditCardListBalance').html(data.balance)
+            const actualBalance = data.balance.substr(0, data.balance.length - 3)
+
+            $(child).find('.creditCardListBalance').html(data.currency + ' [ ' + actualBalance + ' ]')
 
             $(iban).html(IBAN)
             $(type).html(data.type)
@@ -351,9 +358,7 @@ window.onload = async () => {
             $(simulateTransaction).attr('disabled', false)
             $(simulateTransactionButton).attr('disabled', false)
 
-            if (arg != null) {
-                $(transactionSimAmount).trigger('input')
-            }
+            $(transactionSimAmount).trigger('input')
 
             const transactions = data.transactions
             
