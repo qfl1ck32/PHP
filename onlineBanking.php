@@ -281,7 +281,7 @@
                                                 <small class = 'pre'><?php echo $currentCreditCards[$i]['type']; ?></small>
                                             </div>
                                             <div class = 'row'>
-                                                <small class = 'text-muted'><?php echo $currentCreditCards[$i]['currency']; ?> [ <?php echo $currentCreditCards[$i]['balance']; ?> ]</small>   
+                                                <small class = 'creditCardListBalance' class = 'text-muted'><?php echo $currentCreditCards[$i]['currency']; ?> [ <?php echo $currentCreditCards[$i]['balance']; ?> ]</small>   
                                             </div>
                                         </div>
                                         

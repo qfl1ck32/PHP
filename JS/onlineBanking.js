@@ -221,6 +221,10 @@ $(simulateTransactionButton).on('click', async () => {
             $(messageSimulateTransaction).removeClass('alert-success').removeClass('alert-warning').addClass('alert').addClass('alert-danger').html(ans.message).fadeIn('fast', () => {
                 $(simulateTransactionButton).attr('disabled', false)
             })
+
+            const child = $(creditCardsList).children().find('.active')
+
+            $(child).trigger('click')
         }
         
         ignoreCurrencyConvert = true
@@ -327,6 +331,8 @@ window.onload = async () => {
             $(transactionSimImg).attr('src', './' + data.img)
             $(transactionSimBalance).html(data.balance)
             $(transactionSimCurrency).html(data.currency)
+
+            $(child).find('.creditCardListBalance').html(data.balance)
 
             $(iban).html(IBAN)
             $(type).html(data.type)
