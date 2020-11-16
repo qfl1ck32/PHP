@@ -35,8 +35,6 @@
             if ($_POST['amount'] > $checkIsHisIban[0]['balance'])
                 return Status(false, "You are trying to send more money than your current balance.");
 
-            return Status(false, 'i se pare ok');
-
             $checkIbanExists = sendQuery('select hex(id) as id from creditcards where IBAN = ?;', $_POST['toIBAN']);
 
             if (!isset($checkIbanExists))
@@ -351,18 +349,18 @@
 
                                                     <div id = 'sendMoneyContainer' class = 'form-group currentContainer'>
                                                         <label for = 'transactionSimIBANTo'>Receiver's IBAN</label>
-                                                        <input class = 'form-control' name = 'transactionSimIBANTo' id = 'transactionSimIBANTo'>
+                                                        <input autocomplete = 'off' class = 'form-control' name = 'transactionSimIBANTo' id = 'transactionSimIBANTo'>
 
                                                         <label for = 'transactionSimReceiverName'>Reicever's name</label>
                                                         <input disabled class = 'form-control' name = 'transactionSimReceiverName' id = 'transactionSimReceiverName' placeholder = 'This will be autocompleted after you fill in the IBAN.'>
 
                                                         <label for = 'transactionSimDescription'>Description</label>
-                                                        <input class = 'form-control' name = 'transactionSimDescription' id = 'transactionSimDescription'>
+                                                        <input autocomplete = 'off' class = 'form-control' name = 'transactionSimDescription' id = 'transactionSimDescription'>
 
                                                         <label for = 'transactionSimAmount'>Amount</label>
 
                                                         <div class = 'input-group'>
-                                                            <input class = 'form-control' name = 'transactionSimAmount' id = 'transactionSimAmount'>
+                                                            <input autocomplete = 'off' class = 'form-control' name = 'transactionSimAmount' id = 'transactionSimAmount'>
 
                                                             <div class = 'input-group-append'>
                                                                 <span id = 'transactionSimCurrency' class = 'input-group-text'></span>
