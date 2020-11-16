@@ -68,7 +68,7 @@
                             <?php
                                 if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'])
                                     echo " <li class = 'nav-item'>
-                                                <a id = 'settings' href = '#' class = 'nav-link'>Settings</a>
+                                                <a id = 'personalData' href = '#' class = 'nav-link'>Personal Data</a>
                                             </li>";
                             ?>
 
@@ -111,7 +111,7 @@
                     <div class = 'col-8 offset-2 col-sm-4 col-lg-3 offset-sm-4 offset-lg-0'>
                         <div class = 'list-group text-dark text-center border rounded'>
                             <a id = 'loginSystemButton' href = '#' class = 'list-group-item list-group-item-action active infobtn'>Login system</a>   
-                            <a id = 'settingsButton' href = '#' class = 'list-group-item list-group-item-action infobtn'>Settings</a>   
+                            <a id = 'personalDataButton' href = '#' class = 'list-group-item list-group-item-action infobtn'>Personal Data</a>   
                             <a id = 'onlineBankingButton' href = '#' class = 'list-group-item list-group-item-action infobtn'>Online banking</a>
                         </div>
                     </div>
@@ -142,7 +142,7 @@
                                     <small class = 'small-text text-white'>Another note!</small>
                                 </div>
                                 
-                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>After settings up your account for the first time, you should set up all the details about you in the Settings tab.</h6>
+                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>After setting up your account for the first time, you should set up all the details about you in the "Personal Data" tab.</h6>
 
                                 <h4 class = 'font-italic text-left mt-5'>Reset password</h4>
                                 <hr>
@@ -150,8 +150,8 @@
                                     Reset Password tab, input either your username or e-mail and check your inbox for a link that shall help you in this direction.</h6>
                             </div>
 
-                            <div id = 'settingsInfo' class = 'container'>
-                                <h4 class = 'font-italic text-left'>Settings</h4>
+                            <div id = 'personalDataInfo' class = 'container'>
+                                <h4 class = 'font-italic text-left'>Personal data</h4>
                                 <hr>
 
                                 <h6 class = 'font-italic text-left mx-2'>Here is where every piece of personal detail about you lays.</h6>

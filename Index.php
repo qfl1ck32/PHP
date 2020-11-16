@@ -66,7 +66,7 @@
                         <?php
                             if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'])
                                 echo " <li class = 'nav-item'>
-                                            <a id = 'settings' href = '#' class = 'nav-link'>Settings</a>
+                                            <a id = 'personalData' href = '#' class = 'nav-link'>Personal Data</a>
                                         </li>";
                         ?>
 

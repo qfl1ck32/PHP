@@ -11,8 +11,8 @@ const loginSystemButton = document.getElementById('loginSystemButton')
 const onlineBankingButton = document.getElementById('onlineBankingButton')
 const onlineBankingInfo = document.getElementById('onlineBankingInfo')
 
-const settingsButton = document.getElementById('settingsButton')
-const settingsInfo = document.getElementById('settingsInfo')
+const personalDataButton = document.getElementById('personalDataButton')
+const personalDataInfo = document.getElementById('personalDataInfo')
 
 const switchActive = (elem, classPattern) => {
     $('[class*="' + classPattern + '"]').removeClass('active')
@@ -48,8 +48,8 @@ $(onlineBankingButton).click(() => {
     switchAbout(onlineBankingButton, onlineBankingInfo)
 })
 
-$(settingsButton).click(() => {
-    switchAbout(settingsButton, settingsInfo)
+$(personalDataButton).click(() => {
+    switchAbout(personalDataButton, personalDataInfo)
 })
 
 $(home).click(() => {

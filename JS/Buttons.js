@@ -4,7 +4,7 @@ const home_button = document.getElementById("home");
 const about_button = document.getElementById("about");
 
 const online_banking = document.getElementById("onlineBanking");
-const settings = document.getElementById("settings");
+const personalData = document.getElementById("personalData");
 
 const admin = document.getElementById('admin')
 
@@ -23,9 +23,9 @@ if (online_banking)
         window.location.href = 'onlineBanking.php'
     }
 
-if (settings)
-    settings.onclick = () => {
-        window.location.href = 'Settings.php'
+if (personalData)
+    personalData.onclick = () => {
+        window.location.href = 'personalData.php'
     }
 
 if (admin)
