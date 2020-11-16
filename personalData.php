@@ -43,7 +43,7 @@
         <meta charset = "UTF-8">
         <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
 
-        <link rel = "stylesheet" type = "text/css" href = "CSS/Settings.css">
+        <link rel = "stylesheet" type = "text/css" href = "CSS/personalData.css">
         <link rel = 'stylesheet' type = 'text/css' href = 'CSS/Animations.css'>
 
 
@@ -53,7 +53,7 @@
 
         <link rel = "icon" href = "Images/Icon.png">
 
-        <script src = "JS/Settings.js" defer></script>
+        <script src = "JS/personalData.js" defer></script>
         <script src = "JS/Buttons.js" defer></script>
 
         <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js' type='text/javascript'></script>
@@ -65,7 +65,7 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" type="text/javascript"></script>
 
-        <title>Settings</title>
+        <title>Personal Data</title>
     </head>
 
     <body class = 'bg-img'>
@@ -99,7 +99,7 @@
                         <?php
                             if (isset($_SESSION['isLogged']) && $_SESSION['isLogged'])
                                 echo " <li class = 'nav-item'>
-                                            <a id = 'settings' href = '#' class = 'nav-link active'>Settings</a>
+                                            <a id = 'personalData' href = '#' class = 'nav-link active'>Personal Data</a>
                                         </li>";
                         ?>
 
