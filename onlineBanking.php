@@ -153,14 +153,14 @@
     if (sizeof($currentCreditCards))
         $currentTransactions = sendQuery('select type from transactions where iban = ?', $currentCreditCards[0]['iban']);
 
-    $currencies = sendQuery('select name from currencies;');
+    $currencies = sendQuery('select currency from currencies;');
 
     $currencyWithImg = array();
 
     
 
     foreach ($currencies as $currentCurrency) {
-        $name = $currentCurrency['name'];
+        $name = $currentCurrency['currency'];
         $img = glob('Images/countryFlags/' . substr($name, 0, 2) . '.png');
 
         $currencyWithImg[] = array('name' => $name, 'src' => $img[0]);
