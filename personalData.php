@@ -14,8 +14,15 @@
         die(header('location: /404.php'));
     }
 
-    $pendingData = sendQuery('select * from pendingPersonalData where id = unhex(?);', $_SESSION['id']);
-    $actualData = sendQuery('select * from personalData where id = unhex(?);', $_SESSION['id']);
+    $pendingData = sendQuery('select firstName, lastName, dateOfBirth, gender, address, 
+                            (select name from countries where id = countryId) country,
+                            (select name from cities where id = cityId) city,
+                            (select name from states where id = stateId) state from pendingPersonalData where id = unhex(?);', $_SESSION['id']);
+
+    $actualData = sendQuery('select firstName, lastName, dateOfBirth, gender, address, 
+                            (select name from countries where id = countryId) country,
+                            (select name from cities where id = cityId) city,
+                            (select name from states where id = stateId) state from personalData where id = unhex(?);', $_SESSION['id']);
 
     if (isset($pendingData[0])) {
         $data = $pendingData[0];

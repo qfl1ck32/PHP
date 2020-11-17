@@ -125,7 +125,7 @@
             return Status(true, $ibanExists[0]['name']);
         }
 
-        $data = sendQuery('select type, currency, balance from creditcards where id = unhex(?) and iban = ?', $_SESSION['id'], $_POST['IBAN']);
+        $data = sendQuery('select type, (select name from currencies where id = currencyId) currency, balance from creditcards where id = unhex(?) and iban = ?', $_SESSION['id'], $_POST['IBAN']);
 
         if (!isset($data[0]))
             return Status(false, "The given IBAN either does not exist or it does not belong to any of your credit cards.");
@@ -148,22 +148,22 @@
 
     $hasSettings = sendQuery('select count(*) as c from personaldata where id = unhex(?)', $_SESSION['id'])[0]['c'];
 
-    $currentCreditCards = sendQuery('select iban, type, currency, balance from creditcards where id = unhex(?);', $_SESSION['id']);
+    $currentCreditCards = sendQuery('select iban, type, (select name from currencies where id = currencyId) currency, balance from creditcards where id = unhex(?);', $_SESSION['id']);
 
     if (sizeof($currentCreditCards))
         $currentTransactions = sendQuery('select type from transactions where iban = ?', $currentCreditCards[0]['iban']);
 
-    $currencies = sendQuery('select currency from currencies;');
+    $currencies = sendQuery('select * from currencies;');
 
     $currencyWithImg = array();
 
-    
 
     foreach ($currencies as $currentCurrency) {
-        $name = $currentCurrency['currency'];
+        $name = $currentCurrency['name'];
+        $id = $currentCurrency['id'];
         $img = glob('Images/countryFlags/' . substr($name, 0, 2) . '.png');
 
-        $currencyWithImg[] = array('name' => $name, 'src' => $img[0]);
+        $currencyWithImg[] = array('id' => $id, 'name' => $name, 'src' => $img[0]);
     }
 ?>
 
@@ -417,7 +417,7 @@
                                                     <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'createCardWithCurrency' name = 'currency'>
                                                     <?php
                                                             foreach ($currencyWithImg as $curr) {
-                                                                echo "<option value = '" . $curr['name'] . "'>" . $curr['name'] . "</option>\n";
+                                                                echo "<option value = '" . $curr['id'] . "'>" . $curr['name'] . "</option>\n";
                                                             }
                                                     ?>
                                                 </select>

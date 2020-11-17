@@ -7,8 +7,11 @@
     include 'functions.php';
     include 'mysql.php';
 
-    if (c('firstName') || c('lastName') || c('dateOfBirth') || c('gender') || c('address') || c('country') || c('state') || c('city') || !isset($_FILES['file']))
+    if (c('firstName') || c('lastName') || c('dateOfBirth') || c('gender') || c('address') || c('countryId') || c('stateId') || c('cityId') || !isset($_FILES['file']))
         return Status(false, "Missing parameter.");
+
+    if ($_POST['countryId'] == -1 || $_POST['stateId'] == -1 || $_POST['cityId'] == -1)
+        return Status(false, "Invalid location.");
 
     $image = file_get_contents($_FILES['file']['tmp_name']);
     $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
@@ -23,8 +26,8 @@
 
     file_put_contents("../Images/pendingPersonalDataImages/" . $_SESSION['id'] . ".png", $image);
     
-    $putNewData = sendQuery('insert into pendingPersonalData values (unhex(?), ?, ?, ?, ?, ?, ?, ?, ?);', $_SESSION['id'], $_POST['firstName'], $_POST['lastName'], $_POST['dateOfBirth'], $_POST['gender'], $_POST['address'], $_POST['city'],
-                            $_POST['state'], $_POST['country']);
+    $putNewData = sendQuery('insert into pendingPersonalData values (unhex(?), ?, ?, ?, ?, ?, ?, ?, ?);', $_SESSION['id'], $_POST['firstName'], $_POST['lastName'], $_POST['dateOfBirth'], $_POST['gender'], $_POST['address'], $_POST['cityId'],
+                            $_POST['stateId'], $_POST['countryId']);
     
     return Status(true, "You have succesfully made a change. You should now wait for approval.");
 ?>

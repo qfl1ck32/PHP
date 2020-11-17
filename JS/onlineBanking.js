@@ -65,8 +65,8 @@ const   createCreditCard = get('createCreditCard'),
 
 $(createCreditCard).click(async () => {
     $(createCreditCard).attr('disabled', true)
-    
-    const ans = JSON.parse(await Promise.resolve($.post('./API/createCreditCard.php', { currency: createCardWithCurrency.value })))
+
+    const ans = JSON.parse(await Promise.resolve($.post('./API/createCreditCard.php', { currencyId: createCardWithCurrency.value })))
 
     if ($(messageCreateCreditCard).html() != ans.message || ans.status == true) {
         $(messageCreateCreditCard).removeClass().html(ans.message).addClass('alert').addClass(ans.status ? 'alert-success' : 'alert-danger').hide().fadeIn('fast')

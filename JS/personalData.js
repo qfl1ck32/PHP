@@ -373,8 +373,12 @@ $(update).click(async () => {
 
     const data = new FormData();
     
-    for (let elem of [firstName, lastName, dateOfBirth, gender, address, country, state, city])
+    for (let elem of [firstName, lastName, dateOfBirth, gender, address])
         data.append(elem.id, elem.value)
+
+    data.append("countryId", countryId)
+    data.append("stateId", stateId)
+    data.append("cityId", cityId)
 
     data.append('file', file.files[0])
 
