@@ -195,7 +195,7 @@
                                     <small class = 'small-text text-white'>Note!</small>
                                 </div>
 
-                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>You can have only one credit card for a specific type of currency.</h6>
+                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>You can have at maximum 3 credit cards for a specific type of currency.</h6>
 
                                 <h4 class = 'font-italic text-left mt-5'>Sending money</h4>
                                 <hr>
@@ -204,7 +204,7 @@
                                 <h6 class = 'font-italic text-left mx-2'>For this specific reason, we've built a friendly interface for you to use with ease when in need of transferring some money.</h6>
                                 <h6 class = 'font-italic text-left mx-2'>The only things you need to fill in are the following:</h6>
                                 
-                                <h6 class = 'font-itaic text-left mx-4'>The IBAN of the person you want to send money to, his/her name, an amount of a specific currency and a message.</h6>
+                                <h6 class = 'font-itaic text-left mx-4'>The IBAN of the person you want to send money to, an amount of a specific currency and a message.</h6>
 
                                 <div class = 'container text-left'>
                                     <small class = 'small-text text-white'>Note!</small>
