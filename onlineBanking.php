@@ -568,7 +568,7 @@
                         <div class = 'container text-center text-white'>
                             <h4>Uh-oh!</h4>
 
-                            <h6>It seems like you haven't put any information in the settings tab.</h6>
+                            <h6>It seems like you haven't put any information in the "Personal data" tab.</h6>
                             <h6>Please fill in the needed data and wait for an administrator to approve the changes.</h6>
 
                         </div>
