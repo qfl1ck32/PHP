@@ -53,7 +53,7 @@
                 $description = 'POS Purchase at ' . $item['storename'] . '.'; 
 
                 sendQuery('update creditcards set balance = balance - ? where IBAN = ?;', round($price, 2), $IBAN);
-                sendQuery('insert into transactions values (?, ?, ?, curdate(), ?, ?, ?);', $transactionReference, $IBAN, $type, $description, round($price, 2), round($balance - $price, 2));
+                sendQuery('insert into transactions values (?, ?, ?, now(), ?, ?, ?);', $transactionReference, $IBAN, $type, $description, round($price, 2), round($balance - $price, 2));
                 
                 return Status(true, "You have succesfully made the purchase.");
             }
@@ -145,9 +145,9 @@
             $type2 = "Received money";
             $description2 = $description1;
 
-            sendQuery('insert into transactions values (?, ?, ?, curdate(), ?, ?, ?), (?, ?, ?, curdate(), ?, ?, ?);', 
+            sendQuery('insert into transactions values (?, ?, ?, now(), ?, ?, ?), (?, ?, ?, now(), ?, ?, ?);', 
                         $transactionReference, $_POST['fromIBAN'], $type1, $description1, round($_POST['amount'], 2), round($sendBalance, 2),
-                        $transactionReference, $_POST['toIBAN'], $type2, $description1, round($_POST['amount'], 2), round($receiveBalance), 2);
+                        $transactionReference, $_POST['toIBAN'], $type2, $description1, round($_POST['amount'], 2), round($receiveBalance, 2));
 
             return Status(true, "The transaction succesfully took place.<br>Check the 'transactions' tab for more details.");
         }
