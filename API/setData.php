@@ -24,9 +24,9 @@
     if ($existsPending['c'])
         return Status(false, "You already have a pending change.");
 
-    file_put_contents("../Images/pendingPersonalDataImages/" . $_SESSION['id'] . ".png", $image);
+    file_put_contents("../Images/personalDataImages/" . $_SESSION['id'] . ".png", $image);
     
-    $putNewData = sendQuery('insert into pendingPersonalData values (unhex(?), ?, ?, ?, ?, ?, ?, ?, ?);', $_SESSION['id'], $_POST['firstName'], $_POST['lastName'], $_POST['dateOfBirth'], $_POST['gender'], $_POST['address'], $_POST['cityId'],
+    $putNewData = sendQuery('insert into personalData values (unhex(?), ?, ?, ?, ?, ?, ?, ?, ?);', $_SESSION['id'], $_POST['firstName'], $_POST['lastName'], $_POST['dateOfBirth'], $_POST['gender'], $_POST['address'], $_POST['cityId'],
                             $_POST['stateId'], $_POST['countryId']);
     
     return Status(true, "You have succesfully made a change. You should now wait for approval.");

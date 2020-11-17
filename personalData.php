@@ -128,7 +128,6 @@
             ?>
         </div>
 
-    
         <div id = 'mainDiv' class = "container col-10 col-sm-6 col-xl-3 col-lg-5 border border-white rounded text-white mb-4">
 
             <div id = "personalInfoData" class = "container">
@@ -216,6 +215,12 @@
 
                 <div class = "container text-center mb-4">
                     <button disabled id = 'update' class = "btn btn-outline-primary btn-md text-white">Update</button>
+                </div>
+
+                <hr>
+
+                <div class = 'container alert alert-warning border rounded-pill text-center mb-4'>
+                    <small>For testing purposes, the manual approval will be skipped.</small>
                 </div>
 
             </div>
