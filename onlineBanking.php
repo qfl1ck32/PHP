@@ -16,6 +16,52 @@
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+        if (!c('buyItem')) {
+
+            if (c('itemId') || c('IBAN'))
+                return Status(false, "Missing parameter(s).");
+
+            $itemId = $_POST['itemId'];
+            $IBAN = $_POST['IBAN'];
+
+            $item = sendQuery('select name, price, currency, storename from shoppingitems where id = ?', $itemId);
+
+            if (!isset($item[0]))
+                return Status(false, "The item does not exist.");
+
+            $creditCard = sendQuery('select balance, (select name from currencies where id = currencyId) currency from creditcards where id = unhex(?) and iban = ?;', $_SESSION['id'], $IBAN);
+
+            if (!isset($creditCard[0]))
+                return Status(false, "The given IBAN does not belong to you or does not exist.");
+
+            $item = $item[0];
+            $creditCard = $creditCard[0];
+
+            $price = $item['price'];
+            $itemCurrency = $item['currency'];
+
+            $balance = $creditCard['balance'];
+            $creditCardCurrency = $creditCard['currency'];
+
+            if ($itemCurrency === $creditCardCurrency) {
+                if ($price > $balance) {
+                    return Status(false, "Your balance is too low.");
+                }
+
+                $transactionReference = strtoupper(bin2hex(random_bytes(16)));
+                $type = 'POS Purchase';
+                $description = 'POS Purchase at ' . $item['storename'] . '.'; 
+
+                sendQuery('update creditcards set balance = balance - ? where IBAN = ?;', round($price, 2), $IBAN);
+                sendQuery('insert into transactions values (?, ?, ?, curdate(), ?, ?, ?);', $transactionReference, $IBAN, $type, $description, round($price, 2), round($balance - $price, 2));
+                
+                return Status(true, "You have succesfully made the purchase.");
+            }
+
+            return Status(false, "err"); // convert currencies and stuff
+
+        }
+
         if (!c('simulateTransaction')) {
             if (c('fromIBAN') || c('toIBAN') || c('description') || c('amount'))
                 return Status(false, "Missing parameter(s).");
@@ -87,8 +133,8 @@
 
             $transactionReference = strtoupper(bin2hex(random_bytes(16)));
 
-            sendQuery('update creditcards set balance = balance + ? where iban = ?;', $amountToSend, $_POST['toIBAN']);
-            sendQuery('update creditCards set balance = balance - ? where iban = ?;', $_POST['amount'], $_POST['fromIBAN']);
+            sendQuery('update creditcards set balance = balance + ? where iban = ?;', round($amountToSend, 2), $_POST['toIBAN']);
+            sendQuery('update creditCards set balance = balance - ? where iban = ?;', round($_POST['amount'], 2), $_POST['fromIBAN']);
 
             $sendBalance = sendQuery('select balance from creditcards where iban = ?;', $_POST['fromIBAN'])[0]['balance'];
             $receiveBalance = sendQuery('select balance from creditcards where iban = ?;', $_POST['toIBAN'])[0]['balance'];
@@ -100,8 +146,8 @@
             $description2 = $description1;
 
             sendQuery('insert into transactions values (?, ?, ?, curdate(), ?, ?, ?), (?, ?, ?, curdate(), ?, ?, ?);', 
-                        $transactionReference, $_POST['fromIBAN'], $type1, $description1, $_POST['amount'], $sendBalance,
-                        $transactionReference, $_POST['toIBAN'], $type2, $description1, $_POST['amount'], $receiveBalance);
+                        $transactionReference, $_POST['fromIBAN'], $type1, $description1, round($_POST['amount'], 2), round($sendBalance, 2),
+                        $transactionReference, $_POST['toIBAN'], $type2, $description1, round($_POST['amount'], 2), round($receiveBalance), 2);
 
             return Status(true, "The transaction succesfully took place.<br>Check the 'transactions' tab for more details.");
         }
@@ -157,13 +203,21 @@
 
     $currencyWithImg = array();
 
-
     foreach ($currencies as $currentCurrency) {
         $name = $currentCurrency['name'];
         $id = $currentCurrency['id'];
         $img = glob('Images/countryFlags/' . substr($name, 0, 2) . '.png');
 
         $currencyWithImg[] = array('id' => $id, 'name' => $name, 'src' => $img[0]);
+    }
+
+
+    $shoppingItemsTemp = sendQuery('select * from shoppingitems;');
+
+    $shoppingItems = array();
+
+    foreach ($shoppingItemsTemp as $shoppingItem) {
+        $shoppingItems[] = array('id' => $shoppingItem['id'], 'name' => $shoppingItem['name'], 'price' => $shoppingItem['price'], 'currency' => $shoppingItem['currency'], 'storename' => $shoppingItem['storename']);
     }
 ?>
 
@@ -372,7 +426,13 @@
 
                                                     <div id = 'buyItemContainer' style = 'display: none;' class = 'form-group'>
                                                         <label for = 'transactionSimItem'>Choose an item</label>
-                                                        <input class = 'form-control'>
+                                                        <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'chosenItem' name = 'chosenItem'>
+                                                            <?php
+                                                                    foreach ($shoppingItems as $shoppingItem) {
+                                                                        echo "<option data-subtext = '" . $shoppingItem['storename'] . "' value = '" . $shoppingItem['id'] . "'>" . $shoppingItem['name'] . ' | ' . $shoppingItem['price'] . ' ' . $shoppingItem['currency'] . "</option>\n";
+                                                                    }
+                                                            ?>
+                                                        </select>
                                                     </div>
 
                                                 </div>

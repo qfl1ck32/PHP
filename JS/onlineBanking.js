@@ -59,6 +59,8 @@ const   createCreditCard = get('createCreditCard'),
         sendMoneyContainer = get('sendMoneyContainer'),
         buyItemContainer = get('buyItemContainer'),
 
+        chosenItem = get('chosenItem'),
+
 
         transactionSimIBANTo = get('transactionSimIBANTo')
 
@@ -96,9 +98,6 @@ const switchBetween = (button1, button2, div1, div2) => {
     $(button2).attr('disabled', true).removeClass('active')
     $(button1).attr('disabled', true).addClass('active')
 
-    $(div1).removeClass('currentDataPage')
-    $(div2).addClass('currentDataPage')
-
     $(div1).fadeOut('fast', () => {
         $(div2).fadeIn('fast')
 
@@ -109,18 +108,32 @@ const switchBetween = (button1, button2, div1, div2) => {
 
 $(details).on('click', () => {
     switchBetween(details, transactionsButton, creditCardTransactionsData, creditCardMainData)
+
+    $(creditCardTransactionsData).removeClass('currentDataPage')
+    $(creditCardMainData).addClass('currentDataPage')
 })
 
 $(transactionsButton).on('click', () => {
     switchBetween(transactionsButton, details, creditCardMainData, creditCardTransactionsData)
+
+    $(creditCardMainData).removeClass('currentDataPage')
+    $(creditCardTransactionsData).addClass('currentDataPage')
 })
 
 $(sendMoney).on('click', () => {
     switchBetween(sendMoney, buyItem, buyItemContainer, sendMoneyContainer)
+    $(simulateTransactionButton).attr('disabled', true)
+
+    $(sendMoneyContainer).addClass('currentContainer')
+    $(buyItemContainer).removeClass('currentContainer')
 })
 
 $(buyItem).on('click', () => {
     switchBetween(buyItem, sendMoney, sendMoneyContainer, buyItemContainer)
+    $(simulateTransactionButton).attr('disabled', false)
+
+    $(buyItemContainer).addClass('currentContainer')
+    $(sendMoneyContainer).removeClass('currentContainer')
 })
 
 
@@ -148,6 +161,42 @@ $(modalCenterSimulateTransaction).on('blur hidden.bs.modal', () => {
 
 $(simulateTransactionButton).on('click', async () => {
 
+    const simulatePage = $('[class*="currentContainer"]')
+
+    if ($(simulatePage).attr('id') === 'buyItemContainer') {
+        const itemId = $(chosenItem).val()
+
+        $(simulateTransactionButton).attr('disabled', true)
+
+
+        const ans = JSON.parse(await Promise.resolve($.post('/onlineBanking.php', { buyItem: true, IBAN: $(transactionSimIBANFrom).val(), itemId: itemId })))
+
+        console.log(ans)
+
+        if (ans.status == true) {
+
+            $(messageSimulateTransaction).removeClass('alert-danger').removeClass('alert-warning').addClass('alert').addClass('alert-success').html(ans.message).fadeIn('fast')
+
+            const children = $(creditCardsList).children()
+
+            for (const child of children) {
+                if ($(child).hasClass('active')) {
+                    $(child).trigger('click', [true])
+                    break
+                }
+            }
+
+        }
+
+        else {
+            $(messageSimulateTransaction).removeClass('alert-success').removeClass('alert-warning').addClass('alert').addClass('alert-danger').html(ans.message).fadeIn('fast', () => {
+                $(simulateTransactionButton).attr('disabled', false)
+            })
+        }
+
+        return
+    }
+
     if (!checkCanSimulate())
         return
 
@@ -173,7 +222,7 @@ $(simulateTransactionButton).on('click', async () => {
 
         for (const child of children) {
             if ($(child).hasClass('active')) {
-                $(child).trigger('click')
+                $(child).trigger('click', [true])
                 break
             }
         }
@@ -234,6 +283,13 @@ $(simulateTransactionButton).on('click', async () => {
         
         ignoreCurrencyConvert = true
     }
+})
+
+$(simulateTransaction).on('click', () => {
+    const simulatePage = $('[class*="currentContainer"]')
+
+    if ($(simulatePage).attr('id') === 'buyItemContainer')
+        $(simulateTransactionButton).attr('disabled', false)
 })
 
 $(transactionSimIBANTo).on('change', async () => {
@@ -312,7 +368,7 @@ window.onload = async () => {
 
         const currentIBAN = $(child).find('.IBAN').html()
 
-        $(child).on('click', async () => {
+        $(child).on('click', async (e, arg) => {
 
             const IBAN = currentIBAN
 
@@ -358,7 +414,9 @@ window.onload = async () => {
             $(simulateTransaction).attr('disabled', false)
             $(simulateTransactionButton).attr('disabled', false)
 
-            $(transactionSimAmount).trigger('input')
+            if (arg == null) {
+                $(transactionSimAmount).trigger('input')
+            }
 
             const transactions = data.transactions
             
@@ -394,8 +452,8 @@ window.onload = async () => {
 
                     $(transactionDate).html(transaction.date)
                     $(transactionDescription).html(transaction.description)
-                    $(transactionAmount).html(transaction.amount)
-                    $(transactionBalance).html(transaction.balance)
+                    $(transactionAmount).html(transaction.amount + ' ' + data.currency)
+                    $(transactionBalance).html(transaction.balance + ' ' + data.currency)
                     $(transactionReference).html(transaction.reference)
                 })
 
