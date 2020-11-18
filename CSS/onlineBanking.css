@@ -43,3 +43,6 @@
     width: 4vw;
 }
 
+#simulateTransaction {
+    display: none;
+}
