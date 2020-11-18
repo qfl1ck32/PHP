@@ -83,7 +83,7 @@
 
             sendQuery('insert into transactions values (?, ?, ?, now(), ?, ?, ?);', $transactionReference, $IBAN, $type, $description, $itemConvertedPrice, round($balance - $itemConvertedPrice, 2));
 
-            return Status(true, "You have succesfully made the purchase."); // convert currencies and stuff
+            return Status(true, "You have succesfully made the purchase.");
 
         }
 
@@ -119,6 +119,7 @@
             $receiverCurrency = substr($_POST['toIBAN'], 8, 3);
 
             $amountToSend = 0;
+            $hasExchangedMoney = false;
 
             if ($senderCurrency != $receiverCurrency) {
 
@@ -136,7 +137,7 @@
 
                     if (isset($checkHaveReceiverCurrency[0])) {
                         return Status(-1, "You have other credit card(s) with the same currency.<br>If you wish to send money from one of those, feel free to do so by clicking one of them."
-                        . "<br>Otherwise, press the 'Simulate' button again to send from current chosen credit card.", $checkHaveReceiverCurrency, 0);
+                        . "<br>Otherwise, press the 'Simulate' button again to send from the current chosen credit card.", $checkHaveReceiverCurrency, 0);
                     }
 
                     $receiverId = sendQuery('select hex(id) as id from creditcards where IBAN = ?', $_POST['toIBAN'])[0]['id'];
@@ -144,12 +145,11 @@
 
                     if (isset($checkHasSenderCurrency[0]))
                         return Status(-1, "The receiver has other credt card(s) with the same currency.<br>If you wish to send money to one of those, feel free to do so by clicking one of them."
-                        . "<br>Otherwise, press the 'Simulate' button again to send from current chosen credit card.", $checkHasSenderCurrency, 1);
+                        . "<br>Otherwise, press the 'Simulate' button again to send from the current chosen credit card.", $checkHasSenderCurrency, 1);
 
-                    return Status(false, "The other user has no " . $senderCurrency . " credit card, and neither do you have a " . $receiverCurrency . " one.<br>If you wish to automatically convert the currencies <br>and send "
-                                        . round($convertedCurrency * $_POST['amount'], 2) . ' ' . $receiverCurrency . ', please hit the "Simulate" button again.<br>'
-                                        . "1 " . $senderCurrency . ' = ' . $convertedCurrency . ' ' . $receiverCurrency . ' (' . $date . ')');
-
+                    $amountToSend = round($_POST['amount'] * $convertedCurrency, 2);
+                    
+                    $hasExchangedMoney = true;
                 }
             }
 
@@ -201,7 +201,7 @@
         if (!isset($data[0]))
             return Status(false, "The given IBAN either does not exist or it does not belong to any of your credit cards.");
 
-        $transactions = sendQuery('select date, type, description, amount, balance, hex(reference) as reference from transactions where iban = ?', $_POST['IBAN']);
+        $transactions = sendQuery('select date, type, description, amount, balance, hex(reference) as reference from transactions where iban = ? order by date desc;', $_POST['IBAN']);
 
         $data = $data[0];
 
@@ -266,6 +266,8 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" type="text/javascript"></script>
         <script src = 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js' integrity = 'sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx' crossorigin = 'anonymous'></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+
+        <script src="https://kit.fontawesome.com/7218cc0d0e.js" crossorigin="anonymous"></script>
 
         <script src = 'JS/onlineBanking.js' defer></script>
         <script src = 'JS/Buttons.js' defer></script> 
@@ -333,7 +335,6 @@
             ?>
 
         </div>
-
       
        <div id = 'mainDiv' class = 'container'>
 
