@@ -16,6 +16,19 @@
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+        if (!c('getCards')) {
+
+            $creditCards = sendQuery('select iban, type, (select name from currencies where id = currencyId) currency, balance from creditCards where id = unhex(?);', $_SESSION['id']);
+
+            $cc = array();
+
+            foreach ($creditCards as $creditCard) {
+                $cc[] = array('IBAN' => $creditCard['iban'], 'type' => $creditCard['type'], 'currency' => $creditCard['currency'], 'balance' => $creditCard['balance']);
+            }
+
+            return Status(true, $cc);
+        }
+
         if (!c('buyItem')) {
 
             if (c('itemId') || c('IBAN'))
@@ -43,14 +56,14 @@
             $balance = $creditCard['balance'];
             $creditCardCurrency = $creditCard['currency'];
 
+            $transactionReference = strtoupper(bin2hex(random_bytes(16)));
+            $type = 'POS Purchase';
+            $description = 'POS Purchase at ' . $item['storename'] . '.'; 
+
             if ($itemCurrency === $creditCardCurrency) {
                 if ($price > $balance) {
                     return Status(false, "Your balance is too low.");
                 }
-
-                $transactionReference = strtoupper(bin2hex(random_bytes(16)));
-                $type = 'POS Purchase';
-                $description = 'POS Purchase at ' . $item['storename'] . '.'; 
 
                 sendQuery('update creditcards set balance = balance - ? where IBAN = ?;', round($price, 2), $IBAN);
                 sendQuery('insert into transactions values (?, ?, ?, now(), ?, ?, ?);', $transactionReference, $IBAN, $type, $description, round($price, 2), round($balance - $price, 2));
@@ -58,7 +71,19 @@
                 return Status(true, "You have succesfully made the purchase.");
             }
 
-            return Status(false, "err"); // convert currencies and stuff
+            $exchangeRatesData = json_decode(file_get_contents('https://api.exchangeratesapi.io/latest?symbols=' . $itemCurrency . '&base=' . $creditCardCurrency));
+            $rate = ($exchangeRatesData -> {'rates'}) -> {$itemCurrency};
+
+            $itemConvertedPrice = round($price / $rate, 2);
+
+            if ($itemConvertedPrice > $balance)
+                return Status(false, "Your balance is too low.");
+
+            sendQuery('update creditcards set balance = balance - ? where IBAN = ?;', $itemConvertedPrice, $IBAN);
+
+            sendQuery('insert into transactions values (?, ?, ?, now(), ?, ?, ?);', $transactionReference, $IBAN, $type, $description, $itemConvertedPrice, round($balance - $itemConvertedPrice, 2));
+
+            return Status(true, "You have succesfully made the purchase."); // convert currencies and stuff
 
         }
 
@@ -323,135 +348,106 @@
                     <div style = 'overflow: hidden;' class = 'col-12 col-lg-3 offset-lg-0'>
                         <ul id = 'creditCardsList' style = 'max-height: 288px; overflow-y: scroll;' class = 'list-group flex-lg-column flex-row pb-2 pr-2'>
 
-                            <?php
-                                for ($i = 0; $i < sizeof($currentCreditCards); ++$i) { 
-                            ?>
-
-                                <a href = '#' class = 'creditCard list-group-item list-group-item-action list-group-item-info border rounded text-center mr-lg-0 mr-2 <?php echo ($i == 0) ? 'active' : 'mt-lg-2 mt-sm-0'; ?>'>
-
-                                    <div class = 'row text-left'>
-                                        <div class = 'col-9'>
-                                            <div class = 'row'>
-                                                <small class = 'pre'><?php echo $currentCreditCards[$i]['type']; ?></small>
-                                            </div>
-                                            <div class = 'row'>
-                                                <small class = 'creditCardListBalance' class = 'text-muted'><?php echo $currentCreditCards[$i]['currency']; ?> [ <?php echo $currentCreditCards[$i]['balance']; ?> ]</small>   
-                                            </div>
-                                        </div>
-                                        
-                                        <div class = 'col text-right'>
-                                            <small><img style = 'width: 15px; height: 15px;' class = 'rounded' src = <?php echo "./Images/countryFlags/" . substr($currentCreditCards[$i]['currency'], 0, 2) . ".png"; ?> ></small>
-                                        </div>
-                                    </div>
-
-                                    <div class = 'row justify-content-start mt-2 text-break-lg'>
-                                        <small class = 'IBAN' ><?php echo $currentCreditCards[$i]['iban']; ?></small>
-                                    </div>
-                                
-                                </a>
-
-                            <?php } ?>
 
                         </ul>
 
                         <div class = 'container pt-4 text-center'>
                             <button id = 'createCard' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white' data-toggle = 'modal' data-target = '#modalCenter'>Create a new credit card</button>
-                            <?php if (sizeof($currentCreditCards)) { ?>
-                                <button id = 'simulateTransaction' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white mt-0 mt-lg-2 mt-sm-0' data-toggle = 'modal' data-target = '#modalCenter3'>Simulate a transaction</button>
-                                
-                                <div class = 'modal fade' id = 'modalCenter3' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
-                                    <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
-                                        <div class = 'modal-content'>
+                            
+                            <button id = 'simulateTransaction' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white mt-0 mt-lg-2 mt-sm-0' data-toggle = 'modal' data-target = '#modalCenter3'>Simulate a transaction</button>
+                            
+                            <div class = 'modal fade' id = 'modalCenter3' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
+                                <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
+                                    <div class = 'modal-content'>
 
-                                            <div class = 'modal-header'>
-                                                <h5 class = 'modal-title w-100' id = 'modalTitle'>Simulate a transaction</h5>
-                                                <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
-                                                    <span aria-hidden = 'true'>&times;</span>
-                                                    </button>
-                                            </div>
+                                        <div class = 'modal-header'>
+                                            <h5 class = 'modal-title w-100' id = 'modalTitle'>Simulate a transaction</h5>
+                                            <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
+                                                <span aria-hidden = 'true'>&times;</span>
+                                                </button>
+                                        </div>
 
-                                            <div class = 'modal-body'>
-                                            
-                                                <div id = 'messageSimulateTransaction' class = 'text-center mb-2'></div>
+                                        <div class = 'modal-body'>
+                                        
+                                            <div id = 'messageSimulateTransaction' class = 'text-center mb-2'></div>
 
-                                                <div class = 'form-group text-left'>
+                                            <div class = 'form-group text-left'>
 
-                                                    <div class = 'd-flex justify-content-around mb-2'>
-                                                        <button class = 'btn btn-outline-primary btn-md border rounded-pill active' id = 'sendMoney'>Send money</button>
-                                                        <button class = 'btn btn-outline-primary btn-md border rounded-pill' id = 'buyItem'>Buy item</button>
+                                                <div class = 'd-flex justify-content-around mb-2'>
+                                                    <button class = 'btn btn-outline-primary btn-md border rounded-pill active' id = 'sendMoney'>Send money</button>
+                                                    <button class = 'btn btn-outline-primary btn-md border rounded-pill' id = 'buyItem'>Buy item</button>
+                                                </div>
+
+                                                <hr>
+
+                                                <label for = 'transactionIBANFrom'>Selected credit card</label>
+
+                                                <div class = 'input-group'>
+                                                    <div class = 'input-group-prepend'>
+                                                        <span class = 'input-group-text'>
+                                                            <img style = 'width: 16px; height: 16px;' id = 'transactionSimImage'></img>
+                                                        </span>
                                                     </div>
 
-                                                    <hr>
+                                                    <input disabled class = 'form-control text-center' id = 'transactionSimIBANFrom' name = 'transactionSimIBANFrom'></input>
 
-                                                    <label for = 'transactionIBANFrom'>Selected credit card</label>
+                                                    <div class = 'input-group-append'>
+                                                        <span id = 'transactionSimBalance' class = 'input-group-text'></span>
+                                                    </div>
+                                                </div>
+
+                                                <hr>
+
+                                                <div id = 'sendMoneyContainer' class = 'form-group currentContainer'>
+                                                    <label for = 'transactionSimIBANTo'>Receiver's IBAN</label>
+                                                    <input autocomplete = 'off' class = 'form-control' name = 'transactionSimIBANTo' id = 'transactionSimIBANTo'>
+
+                                                    <label for = 'transactionSimReceiverName'>Reicever's name</label>
+                                                    <input disabled class = 'form-control' name = 'transactionSimReceiverName' id = 'transactionSimReceiverName' placeholder = 'This will be autocompleted after you fill in the IBAN.'>
+
+                                                    <label for = 'transactionSimDescription'>Description</label>
+                                                    <input autocomplete = 'off' class = 'form-control' name = 'transactionSimDescription' id = 'transactionSimDescription'>
+
+                                                    <label for = 'transactionSimAmount'>Amount</label>
 
                                                     <div class = 'input-group'>
-                                                        <div class = 'input-group-prepend'>
-                                                            <span class = 'input-group-text'>
-                                                                <img style = 'width: 16px; height: 16px;' id = 'transactionSimImage'></img>
-                                                            </span>
-                                                        </div>
-
-                                                        <input disabled class = 'form-control text-center' id = 'transactionSimIBANFrom' name = 'transactionSimIBANFrom'></input>
+                                                        <input autocomplete = 'off' class = 'form-control' name = 'transactionSimAmount' id = 'transactionSimAmount'>
 
                                                         <div class = 'input-group-append'>
-                                                            <span id = 'transactionSimBalance' class = 'input-group-text'></span>
+                                                            <span id = 'transactionSimCurrency' class = 'input-group-text'></span>
                                                         </div>
                                                     </div>
-
-                                                    <hr>
-
-                                                    <div id = 'sendMoneyContainer' class = 'form-group currentContainer'>
-                                                        <label for = 'transactionSimIBANTo'>Receiver's IBAN</label>
-                                                        <input autocomplete = 'off' class = 'form-control' name = 'transactionSimIBANTo' id = 'transactionSimIBANTo'>
-
-                                                        <label for = 'transactionSimReceiverName'>Reicever's name</label>
-                                                        <input disabled class = 'form-control' name = 'transactionSimReceiverName' id = 'transactionSimReceiverName' placeholder = 'This will be autocompleted after you fill in the IBAN.'>
-
-                                                        <label for = 'transactionSimDescription'>Description</label>
-                                                        <input autocomplete = 'off' class = 'form-control' name = 'transactionSimDescription' id = 'transactionSimDescription'>
-
-                                                        <label for = 'transactionSimAmount'>Amount</label>
-
-                                                        <div class = 'input-group'>
-                                                            <input autocomplete = 'off' class = 'form-control' name = 'transactionSimAmount' id = 'transactionSimAmount'>
-
-                                                            <div class = 'input-group-append'>
-                                                                <span id = 'transactionSimCurrency' class = 'input-group-text'></span>
-                                                            </div>
-                                                        </div>
-                                                        
-
-                                                    </div>
-
-                                                    <div id = 'buyItemContainer' style = 'display: none;' class = 'form-group'>
-                                                        <label for = 'transactionSimItem'>Choose an item</label>
-                                                        <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'chosenItem' name = 'chosenItem'>
-                                                            <?php
-                                                                    foreach ($shoppingItems as $shoppingItem) {
-                                                                        echo "<option data-subtext = '" . $shoppingItem['storename'] . "' value = '" . $shoppingItem['id'] . "'>" . $shoppingItem['name'] . ' | ' . $shoppingItem['price'] . ' ' . $shoppingItem['currency'] . "</option>\n";
-                                                                    }
-                                                            ?>
-                                                        </select>
-                                                    </div>
+                                                    
 
                                                 </div>
-                                                
-                                            </div>
 
-                                            <div class = 'modal-footer'>
-                                                <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
-                                                <button disabled id = 'simulateTransactionButton' type = 'button' class = 'btn btn-primary'>Simulate</button>
-                                            </div>
+                                                <div id = 'buyItemContainer' style = 'display: none;' class = 'form-group'>
+                                                    <label for = 'transactionSimItem'>Choose an item</label>
+                                                    <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'chosenItem' name = 'chosenItem'>
+                                                        <?php
+                                                                foreach ($shoppingItems as $shoppingItem) {
+                                                                    echo "<option data-subtext = '" . $shoppingItem['storename'] . "' value = '" . $shoppingItem['id'] . "'>" . $shoppingItem['name'] . ' | ' . $shoppingItem['price'] . ' ' . $shoppingItem['currency'] . "</option>\n";
+                                                                }
+                                                        ?>
+                                                    </select>
+                                                </div>
 
+                                            </div>
+                                            
                                         </div>
+
+                                        <div class = 'modal-footer'>
+                                            <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
+                                            <button disabled id = 'simulateTransactionButton' type = 'button' class = 'btn btn-primary'>Simulate</button>
+                                        </div>
+
                                     </div>
                                 </div>
-                                
-                            <?php } ?>
-                        </div>
+                            </div>
+                            
+                        <?php } ?>
                     </div>
-                <?php } ?>
+                </div>
 
                <div class = 'col-lg border rounded offset-lg-0 mt-4 mt-lg-0 p-4 mx-4'>
 
@@ -494,7 +490,7 @@
                             </div>
                         </div>
 
-                        <?php if (isset($currentCreditCards[0])) { ?>
+                        <div id = 'allCreditCards' class = 'container'>
 
                             <div class = 'd-flex justify-content-around mb-4'>
                                 <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white active' id = 'details'>Details</button>
@@ -606,22 +602,19 @@
                                 </div>
                             </div>
 
+                        </div>
 
-                            <?php } else { ?>
+                            <div id = 'missingCreditCards' class = 'container text-center text-white'>
 
-                                <div class = 'container text-center text-white'>
+                                <h4>Uh-oh!</h4>
 
-                                    <h4>Uh-oh!</h4>
+                                <hr>
 
-                                    <hr>
+                                    <h6>It seems like you got no credit cards.</h6>
 
-                                        <h6>It seems like you got no credit cards.</h6>
-
-                                        <h6>You can create a new one using the <i><b>Create a new credit card</b></i> button.</h6>
-                                    
-                                </div>
-
-                            <?php } ?>
+                                    <h6>You can create a new one using the <i><b>Create a new credit card</b></i> button.</h6>
+                                
+                            </div>
 
                     <?php } else { ?>
 

@@ -62,13 +62,21 @@ const   createCreditCard = get('createCreditCard'),
         chosenItem = get('chosenItem'),
 
 
-        transactionSimIBANTo = get('transactionSimIBANTo')
+        transactionSimIBANTo = get('transactionSimIBANTo'),
+
+
+        allCreditCards = get('allCreditCards'),
+        noCreditCards = get('noCreditCards')
 
 
 $(createCreditCard).click(async () => {
     $(createCreditCard).attr('disabled', true)
 
     const ans = JSON.parse(await Promise.resolve($.post('./API/createCreditCard.php', { currencyId: createCardWithCurrency.value })))
+
+    if (ans.status == true) {
+        appendCreditCard(ans.arg0)
+    }
 
     if ($(messageCreateCreditCard).html() != ans.message || ans.status == true) {
         $(messageCreateCreditCard).removeClass().html(ans.message).addClass('alert').addClass(ans.status ? 'alert-success' : 'alert-danger').hide().fadeIn('fast')
@@ -170,8 +178,6 @@ $(simulateTransactionButton).on('click', async () => {
 
 
         const ans = JSON.parse(await Promise.resolve($.post('/onlineBanking.php', { buyItem: true, IBAN: $(transactionSimIBANFrom).val(), itemId: itemId })))
-
-        console.log(ans)
 
         if (ans.status == true) {
 
@@ -351,6 +357,184 @@ $(transactionSimAmount).on('input', () => {
     checkCanSimulate()
 })
 
+const appendCreditCard = (data, active) => {
+    const a = document.createElement('a')
+    $(a).attr('href', '#')
+    $(a).addClass('creditCard list-group-item list-group-item-action list-group-item-info border rounded text-center mr-lg-0 mr-2')
+
+    if (active)
+        $(a).addClass('active')
+    else
+        $(a).addClass('mt-lg-2 mt-sm-0')
+
+    const mainDiv = document.createElement('div')
+    
+    $(mainDiv).addClass('row text-left')
+
+    const col9 = document.createElement('div')
+    $(col9).addClass('col-9')
+
+        const row1 = document.createElement('div')
+        $(row1).addClass('row')
+    
+            const small1 = document.createElement('small')
+            $(small1).addClass('pre').html(data.type)
+            row1.appendChild(small1)
+
+
+        const row2 = document.createElement('div')
+        $(row2).addClass('row')
+
+            const small2 = document.createElement('small')
+            $(small2).addClass('creditCardListBalance text-muted').html(data.currency + ' [ ' + data.balance + ' ]')
+            row2.appendChild(small2)
+
+
+    col9.appendChild(row1)
+    col9.appendChild(row2)
+
+    const colTextRight = document.createElement('div')
+    $(colTextRight).addClass('col text-right')
+
+        const small3 = document.createElement('small')
+            const img = document.createElement('img')
+            $(img).css('width', '15').css('height', '15').addClass('rounded').attr('src', './Images/countryFlags/' + data.currency.substr(0, 2) + '.png')
+            small3.appendChild(img)
+
+
+    colTextRight.appendChild(small3)
+
+
+    mainDiv.appendChild(col9)
+    mainDiv.appendChild(colTextRight)
+
+    a.appendChild(mainDiv)
+
+
+    const iban = document.createElement('div')
+    $(iban).addClass('row justify-content-start mt-2 text-break-lg')
+
+        const small4 = document.createElement('small')
+        $(small4).addClass('IBAN').html(data.IBAN)
+        iban.appendChild(small4)
+
+    a.appendChild(iban)
+
+    creditCardsList.appendChild(a)
+
+    if ($(creditCardsList).children().length == 1) {
+        $('#missingCreditCards').hide()
+        $('#allCreditCards').show()
+        $(simulateTransaction).show()
+        creditCardOnClick(a)
+        $(a).trigger('click')
+    }
+
+    else
+        creditCardOnClick(a)
+
+
+}
+
+const creditCardOnClick = child => {
+    const currentIBAN = $(child).find('.IBAN').html()
+
+    $(child).on('click', async (e, arg) => {
+
+        const IBAN = currentIBAN
+
+        $('[class*="currentDataPage"]').hide()
+        $('[class*="creditCard"]').addClass('disabled')
+        $(creditCardMainDataSpinner).fadeIn('fast')
+        $(details).attr('disabled', true)
+        $(transactionsButton).attr('disabled', true)
+        $(createCreditCardButton).attr('disabled', true)
+        $(simulateTransaction).attr('disabled', true)
+        $(simulateTransactionButton).attr('disabled', true)
+
+        const timeBefore = performance.now()
+        const data = JSON.parse(await Promise.resolve($.post('/onlineBanking.php', { IBAN: IBAN })))
+        const timeAfter = performance.now()
+
+        if (timeAfter - timeBefore < 200)
+            await new Promise(resolve => { setTimeout(resolve, timeBefore - timeAfter + 200) })
+
+        $(transactionSimIBANFrom).val(IBAN)
+        $(transactionSimImg).attr('src', './' + data.img)
+        $(transactionSimBalance).html(data.balance)
+        $(transactionSimCurrency).html(data.currency)
+
+        const actualBalance = data.balance.substr(0, data.balance.length - 3)
+
+        $(child).find('.creditCardListBalance').html(data.currency + ' [ ' + actualBalance + ' ]')
+
+        $(iban).html(IBAN)
+        $(type).html(data.type)
+        $(currency).html(data.currency)
+        $(balance).html(data.balance)
+
+        $('[class*="creditCard"]').removeClass('active')
+        $(child).addClass('active')
+
+        $(creditCardMainDataSpinner).hide()
+        $('[class*="currentDataPage"]').fadeIn('fast')
+        $('[class*="creditCard"]').removeClass('disabled')
+        $(details).attr('disabled', false)
+        $(transactionsButton).attr('disabled', false)
+        $(createCreditCardButton).attr('disabled', false)
+        $(simulateTransaction).attr('disabled', false)
+        $(simulateTransactionButton).attr('disabled', false)
+
+        if (arg == null) {
+            $(transactionSimAmount).trigger('input')
+        }
+
+        const transactions = data.transactions
+        
+        $(transactionsList).empty()
+        
+        if (!transactions.length)
+            return $(missingTransactions).html('You have no transactions for this credit card.').fadeIn('slow')
+        
+        $(missingTransactions).hide()
+        $(transactionsList).hide()
+
+        for (const transaction of transactions) {
+            const newTransaction = document.createElement('a')
+            newTransaction.setAttribute('data-toggle', 'modal')
+            newTransaction.setAttribute('data-target', '#modalCenter2')
+            newTransaction.setAttribute('href', '#')
+            newTransaction.className = 'list-group-item list-group-item-action list-group-item-info border rounded text-center mb-2'
+            
+            const rowDiv = document.createElement('div')
+            rowDiv.className = 'row text'
+
+            const colDiv = document.createElement('div')
+            colDiv.className = 'col'
+            
+            const small = document.createElement('small')
+            small.innerHTML = transaction.type
+
+            colDiv.appendChild(small)
+            rowDiv.appendChild(colDiv)
+            newTransaction.appendChild(rowDiv)
+
+            newTransaction.addEventListener('click', () => {
+
+                $(transactionDate).html(transaction.date)
+                $(transactionDescription).html(transaction.description)
+                $(transactionAmount).html(transaction.amount + ' ' + data.currency)
+                $(transactionBalance).html(transaction.balance + ' ' + data.currency)
+                $(transactionReference).html(transaction.reference)
+            })
+
+            transactionsList.appendChild(newTransaction)
+        }
+
+        $(transactionsList).fadeIn('slow')
+    })
+}
+
 
 window.onload = async () => {
 
@@ -358,111 +542,27 @@ window.onload = async () => {
 
     $(creditCardTransactionsData).css('height', $(creditCardMainData).height() + 8)
 
+    $('#allCreditCards').hide()
+    $('#mainDiv').hide()
+
+    const creditCards = JSON.parse(await Promise.resolve($.post('/onlineBanking.php', { getCards: true })))
+
+    $('#mainDiv').fadeIn('slow')
+
+    if (creditCards.message) {
+        $('#missingCreditCards').hide()
+        $('#allCreditCards').fadeIn('slow')
+        for (const creditCard of creditCards.message) {
+            appendCreditCard(creditCard)
+        }
+    }
+
+
     const children = $(creditCardsList).children()
 
     if (!$(children).length)
         return
 
-
-    for (const child of children) {
-
-        const currentIBAN = $(child).find('.IBAN').html()
-
-        $(child).on('click', async (e, arg) => {
-
-            const IBAN = currentIBAN
-
-            $('[class*="currentDataPage"]').hide()
-            $('[class*="creditCard"]').addClass('disabled')
-            $(creditCardMainDataSpinner).fadeIn('fast')
-            $(details).attr('disabled', true)
-            $(transactionsButton).attr('disabled', true)
-            $(createCreditCardButton).attr('disabled', true)
-            $(simulateTransaction).attr('disabled', true)
-            $(simulateTransactionButton).attr('disabled', true)
-
-            const timeBefore = performance.now()
-            const data = JSON.parse(await Promise.resolve($.post('/onlineBanking.php', { IBAN: IBAN })))
-            const timeAfter = performance.now()
-
-            if (timeAfter - timeBefore < 200)
-                await new Promise(resolve => { setTimeout(resolve, timeBefore - timeAfter + 200) })
-
-            $(transactionSimIBANFrom).val(IBAN)
-            $(transactionSimImg).attr('src', './' + data.img)
-            $(transactionSimBalance).html(data.balance)
-            $(transactionSimCurrency).html(data.currency)
-
-            const actualBalance = data.balance.substr(0, data.balance.length - 3)
-
-            $(child).find('.creditCardListBalance').html(data.currency + ' [ ' + actualBalance + ' ]')
-
-            $(iban).html(IBAN)
-            $(type).html(data.type)
-            $(currency).html(data.currency)
-            $(balance).html(data.balance)
-
-            $('[class*="creditCard"]').removeClass('active')
-            $(child).addClass('active')
-
-            $(creditCardMainDataSpinner).hide()
-            $('[class*="currentDataPage"]').fadeIn('fast')
-            $('[class*="creditCard"]').removeClass('disabled')
-            $(details).attr('disabled', false)
-            $(transactionsButton).attr('disabled', false)
-            $(createCreditCardButton).attr('disabled', false)
-            $(simulateTransaction).attr('disabled', false)
-            $(simulateTransactionButton).attr('disabled', false)
-
-            if (arg == null) {
-                $(transactionSimAmount).trigger('input')
-            }
-
-            const transactions = data.transactions
-            
-            $(transactionsList).empty()
-            
-            if (!transactions.length)
-                return $(missingTransactions).html('You have no transactions for this credit card.').fadeIn('slow')
-            
-            $(missingTransactions).hide()
-            $(transactionsList).hide()
-
-            for (const transaction of transactions) {
-                const newTransaction = document.createElement('a')
-                newTransaction.setAttribute('data-toggle', 'modal')
-                newTransaction.setAttribute('data-target', '#modalCenter2')
-                newTransaction.setAttribute('href', '#')
-                newTransaction.className = 'list-group-item list-group-item-action list-group-item-info border rounded text-center mb-2'
-                
-                const rowDiv = document.createElement('div')
-                rowDiv.className = 'row text'
-
-                const colDiv = document.createElement('div')
-                colDiv.className = 'col'
-                
-                const small = document.createElement('small')
-                small.innerHTML = transaction.type
-
-                colDiv.appendChild(small)
-                rowDiv.appendChild(colDiv)
-                newTransaction.appendChild(rowDiv)
-
-                newTransaction.addEventListener('click', () => {
-
-                    $(transactionDate).html(transaction.date)
-                    $(transactionDescription).html(transaction.description)
-                    $(transactionAmount).html(transaction.amount + ' ' + data.currency)
-                    $(transactionBalance).html(transaction.balance + ' ' + data.currency)
-                    $(transactionReference).html(transaction.reference)
-                })
-
-                transactionsList.appendChild(newTransaction)
-            }
-
-            $(transactionsList).fadeIn('slow')
-        })
-    }
 
     $(creditCardsList).children()[0].click()
 
