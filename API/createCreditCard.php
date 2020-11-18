@@ -50,7 +50,7 @@
         $accountNumberDB = $accountNumberDB[0]['accNum'];
         $hasThisCurrency = sendQuery('select max(substring(iban, 23)) as ib from creditcards where id = unhex(?) and substring(iban, 9, 3) = ?', $_SESSION['id'], $chosenCurrency)[0]['ib'];
         
-        if (!$hasThisCurrency) { // is null
+        if (!$hasThisCurrency) {
             $accountNumber = $accountNumberDB . "01";
         }
 
@@ -113,8 +113,10 @@
 
     sendQuery('insert into creditcards values (unhex(?), ?, "Current Account", ?, 10);', $_SESSION['id'], $IBAN, $_POST['currencyId']);
 
-    return Status(true, "You have succesfully created a new credit card for " . $chosenCurrency . "<br>with IBAN " . $IBAN . ".<br>Refresh the page in order to see the changes.");
+    $currency = sendQuery('select name from currencies where id = ?;', $_POST['currencyId'])[0]['name'];
 
-    //sendQuery('insert into creditcards values (unhex(?),')
+    $cc = array('IBAN' => $IBAN, 'balance' => 10, 'currency' => $currency, 'type' => 'Current Account');
+
+    return Status(true, "You have succesfully created a new credit card for " . $chosenCurrency . "<br>with IBAN " . $IBAN . ".", $cc);
 
 ?>
