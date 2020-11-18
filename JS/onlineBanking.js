@@ -506,21 +506,55 @@ const creditCardOnClick = child => {
             newTransaction.setAttribute('href', '#')
             newTransaction.className = 'list-group-item list-group-item-action list-group-item-info border rounded text-center mb-2'
             
-            const rowDiv = document.createElement('div')
-            rowDiv.className = 'row text'
+            const mainDiv = document.createElement('div')
+            $(mainDiv).addClass('row align-items-center')
 
-            const colDiv = document.createElement('div')
-            colDiv.className = 'col'
+                const col0 = document.createElement('div')
+                $(col0).addClass = 'col-0';
+
+                    const icon = document.createElement('i')
+                    $(icon).addClass('fas fa-' + (transaction.type.indexOf('Received') != -1 ? 'plus' : 'minus') + '-circle')
+                
+                col0.appendChild(icon)
+                mainDiv.appendChild(col0)
+
+                const colSnd = document.createElement('div')
+                $(colSnd).addClass('col')
+
+                    const fstRow = document.createElement('div')
+                    $(fstRow).addClass('row text-left')
+                    
+                        const nxtCol = document.createElement('div')
+                        $(nxtCol).addClass('col')
+
+                            const small = document.createElement('small')
+                            $(small).html(transaction.type)
+
+                        nxtCol.appendChild(small)
+                    
+                    fstRow.appendChild(nxtCol);
+                    colSnd.appendChild(fstRow)
+
+                    const sndRow = document.createElement('div')
+                    $(sndRow).addClass('row text-left')
+
+                        const nxtCol2 = document.createElement('div')
+                        $(nxtCol2).addClass('col font-weight-bold font-italic')
+
+                            const small2 = document.createElement('small')
+                            $(small2).html(transaction.amount + ' ' + data.currency)
+
+                        nxtCol2.appendChild(small2)
+                    
+                    sndRow.appendChild(nxtCol2)
+                    colSnd.appendChild(sndRow)
+
+                mainDiv.appendChild(colSnd)
             
-            const small = document.createElement('small')
-            small.innerHTML = transaction.type
 
-            colDiv.appendChild(small)
-            rowDiv.appendChild(colDiv)
-            newTransaction.appendChild(rowDiv)
+            newTransaction.appendChild(mainDiv)
 
             newTransaction.addEventListener('click', () => {
-
                 $(transactionDate).html(transaction.date)
                 $(transactionDescription).html(transaction.description)
                 $(transactionAmount).html(transaction.amount + ' ' + data.currency)
