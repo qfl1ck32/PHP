@@ -172,7 +172,7 @@
 
             sendQuery('insert into transactions values (?, ?, ?, now(), ?, ?, ?), (?, ?, ?, now(), ?, ?, ?);', 
                         $transactionReference, $_POST['fromIBAN'], $type1, $description1, round($_POST['amount'], 2), round($sendBalance, 2),
-                        $transactionReference, $_POST['toIBAN'], $type2, $description1, round($_POST['amount'], 2), round($receiveBalance, 2));
+                        $transactionReference, $_POST['toIBAN'], $type2, $description1, round($amountToSend, 2), round($receiveBalance, 2));
 
             return Status(true, "The transaction succesfully took place.<br>Check the 'transactions' tab for more details.");
         }
