@@ -499,7 +499,19 @@ const creditCardOnClick = child => {
         $(missingTransactions).hide()
         $(transactionsList).hide()
 
+        let lastDate
+        let writeDate = true
+
+        try {
+            lastDate = new Date(transactions[0].date).getDate()
+        }
+
+        catch (e) {
+
+        }
+
         for (const transaction of transactions) {
+
             const newTransaction = document.createElement('a')
             newTransaction.setAttribute('data-toggle', 'modal')
             newTransaction.setAttribute('data-target', '#modalCenter2')
@@ -554,6 +566,14 @@ const creditCardOnClick = child => {
 
             newTransaction.appendChild(mainDiv)
 
+            if (new Date(transaction.date).getDate() < lastDate) {
+                lastDate = new Date(transaction.date).getDate()
+                const hr = document.createElement('div')
+                $(hr).addClass('border-top my-3')
+                transactionsList.appendChild(hr)
+                writeDate = true
+            }
+
             newTransaction.addEventListener('click', () => {
                 $(transactionDate).html(transaction.date)
                 $(transactionDescription).html(transaction.description)
@@ -561,6 +581,21 @@ const creditCardOnClick = child => {
                 $(transactionBalance).html(transaction.balance + ' ' + data.currency)
                 $(transactionReference).html(transaction.reference)
             })
+
+            if (writeDate) {
+                const date = document.createElement('div')
+                $(date).addClass('text-left text-white mb-2')
+                    const small = document.createElement('small')
+
+                    const data = new Date(transaction.date)
+
+                    $(small).html(data.getUTCFullYear() + '-' + (data.getUTCMonth() + 1) + '-' + data.getDate())
+
+                    date.appendChild(small)
+
+                transactionsList.appendChild(date)
+                writeDate = false
+            }
 
             transactionsList.appendChild(newTransaction)
         }
