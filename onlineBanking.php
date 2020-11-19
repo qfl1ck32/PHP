@@ -58,7 +58,7 @@
 
             $transactionReference = strtoupper(bin2hex(random_bytes(16)));
             $type = 'POS Purchase';
-            $description = 'POS Purchase at ' . $item['storename'] . '.'; 
+            $description = 'POS Purchase at ' . $item['storename'] . '.';
 
             if ($itemCurrency === $creditCardCurrency) {
                 if ($price > $balance) {
@@ -78,6 +78,8 @@
 
             if ($itemConvertedPrice > $balance)
                 return Status(false, "Your balance is too low.");
+
+            $description = $description . ' Automatic currency conversion took place (1 ' . $creditCardCurrency . ' = ' . round($rate, 6) . ' ' . $itemCurrency . ' @ ' . $exchangeRatesData -> {'date'} . ').';
 
             sendQuery('update creditcards set balance = balance - ? where IBAN = ?;', $itemConvertedPrice, $IBAN);
 
@@ -161,6 +163,9 @@
             sendQuery('update creditcards set balance = balance + ? where iban = ?;', round($amountToSend, 2), $_POST['toIBAN']);
             sendQuery('update creditCards set balance = balance - ? where iban = ?;', round($_POST['amount'], 2), $_POST['fromIBAN']);
 
+            $senderName = sendQuery("select concat(firstName, ' ', lastName) name from personalData where id = unhex(?);", $_SESSION['id'])[0]['name'];
+            $receiverName = sendQuery("select concat(firstName, ' ', lastName) name from personalData where id = (select id from creditCards where iban = ?);", $_POST['toIBAN'])[0]['name'];
+
             $sendBalance = sendQuery('select balance from creditcards where iban = ?;', $_POST['fromIBAN'])[0]['balance'];
             $receiveBalance = sendQuery('select balance from creditcards where iban = ?;', $_POST['toIBAN'])[0]['balance'];
 
@@ -168,11 +173,20 @@
             $description1 = $_POST['description'];
 
             $type2 = "Received money";
-            $description2 = $description1;
+            $description2 = $_POST['description'];
+
+            if ($hasExchangedMoney) {
+                $conversionMessage = ' | Automatic currency conversion took place (1 ' . $senderCurrency . ' = ' . round($convertedCurrency, 6) . ' ' . $receiverCurrency . ' @ ' . $date . ').';
+                $description1 .= $conversionMessage;
+                $description2 .= $conversionMessage;
+            }
+
+            $description1 .= ' | Receiver: ' . $receiverName . ', IBAN: ' . $_POST['toIBAN'];
+            $description2 .= ' | Sender: ' . $senderName . ', IBAN: ' . $_POST['fromIBAN'];
 
             sendQuery('insert into transactions values (?, ?, ?, now(), ?, ?, ?), (?, ?, ?, now(), ?, ?, ?);', 
                         $transactionReference, $_POST['fromIBAN'], $type1, $description1, round($_POST['amount'], 2), round($sendBalance, 2),
-                        $transactionReference, $_POST['toIBAN'], $type2, $description1, round($amountToSend, 2), round($receiveBalance, 2));
+                        $transactionReference, $_POST['toIBAN'], $type2, $description2, round($amountToSend, 2), round($receiveBalance, 2));
 
             return Status(true, "The transaction succesfully took place.<br>Check the 'transactions' tab for more details.");
         }
