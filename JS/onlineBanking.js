@@ -632,7 +632,7 @@ window.onload = async () => {
     const children = $(creditCardsList).children()
 
     if (!$(children).length)
-        return
+        return $('#hasSettings').removeClass('mx-2')
 
 
     $(creditCardsList).children()[0].click()
