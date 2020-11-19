@@ -79,7 +79,7 @@
             if ($itemConvertedPrice > $balance)
                 return Status(false, "Your balance is too low.");
 
-            $description = $description . ' Automatic currency conversion took place (1 ' . $creditCardCurrency . ' = ' . round($rate, 6) . ' ' . $itemCurrency . ' @ ' . $exchangeRatesData -> {'date'} . ').';
+            $description = $description . ' | Automatic currency conversion took place (1 ' . $creditCardCurrency . ' = ' . round($rate, 6) . ' ' . $itemCurrency . ' @ ' . $exchangeRatesData -> {'date'} . ').';
 
             sendQuery('update creditcards set balance = balance - ? where IBAN = ?;', $itemConvertedPrice, $IBAN);
 
