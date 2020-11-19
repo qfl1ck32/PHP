@@ -361,14 +361,10 @@
            <div class = 'row py-4'>
                <?php if ($hasSettings) { ?>
                     <div style = 'overflow: hidden;' class = 'col-12 col-lg-3 offset-lg-0'>
-                        <ul id = 'creditCardsList' style = 'max-height: 288px; overflow-y: scroll;' class = 'list-group flex-lg-column flex-row pb-2 pr-2'>
-
-
-                        </ul>
+                        <ul id = 'creditCardsList' style = 'max-height: 288px; overflow-y: scroll;' class = 'list-group flex-lg-column flex-row pb-2 pr-2'></ul>
 
                         <div class = 'container pt-4 text-center'>
                             <button id = 'createCard' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white' data-toggle = 'modal' data-target = '#modalCenter'>Create a new credit card</button>
-                            
                             <button id = 'simulateTransaction' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white mt-0 mt-lg-2 mt-sm-0' data-toggle = 'modal' data-target = '#modalCenter3'>Simulate a transaction</button>
                             
                             <div class = 'modal fade' id = 'modalCenter3' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
@@ -459,12 +455,11 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                        <?php } ?>
                     </div>
-                </div>
+                <?php } ?>
+            </div>
 
-               <div class = 'col-lg border rounded offset-lg-0 mt-4 mt-lg-0 p-4 mx-4'>
+               <div class = 'col-lg border rounded offset-lg-0 mt-4 mt-lg-0 p-4 mb-2'>
 
                     <?php if ($hasSettings) { ?>
                         <div class = 'modal fade' id = 'modalCenter' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
@@ -505,7 +500,7 @@
                             </div>
                         </div>
 
-                        <div id = 'allCreditCards' class = 'container'>
+                        <div id = 'allCreditCards' class = 'container mx-4'>
 
                             <div class = 'd-flex justify-content-around mb-4'>
                                 <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white active' id = 'details'>Details</button>
@@ -619,17 +614,17 @@
 
                         </div>
 
-                            <div id = 'missingCreditCards' class = 'container text-center text-white'>
+                        <div id = 'missingCreditCards' class = 'container text-center text-white'>
 
-                                <h4>Uh-oh!</h4>
+                            <h4>Uh-oh!</h4>
 
-                                <hr>
+                            <hr>
 
-                                    <h6>It seems like you got no credit cards.</h6>
+                                <h6>It seems like you got no credit cards.</h6>
 
-                                    <h6>You can create a new one using the <i><b>Create a new credit card</b></i> button.</h6>
-                                
-                            </div>
+                                <h6>You can create a new one using the <i><b>Create a new credit card</b></i> button.</h6>
+                            
+                        </div>
 
                     <?php } else { ?>
 
