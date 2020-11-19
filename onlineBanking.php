@@ -281,7 +281,7 @@
         <script src = 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js' integrity = 'sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx' crossorigin = 'anonymous'></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
 
-        <script src="https://kit.fontawesome.com/7218cc0d0e.js" crossorigin="anonymous"></script>
+        <script src = "https://kit.fontawesome.com/7218cc0d0e.js" crossorigin="anonymous"></script>
 
         <script src = 'JS/onlineBanking.js' defer></script>
         <script src = 'JS/Buttons.js' defer></script> 
