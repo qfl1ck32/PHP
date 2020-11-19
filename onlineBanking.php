@@ -251,7 +251,7 @@
     }
 
 
-    $shoppingItemsTemp = sendQuery('select * from shoppingitems;');
+    $shoppingItemsTemp = sendQuery('select * from shoppingitems order by currency;');
 
     $shoppingItems = array();
 
