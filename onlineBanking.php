@@ -365,6 +365,7 @@
 
                         <div class = 'container pt-4 text-center'>
                             <button id = 'createCard' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white' data-toggle = 'modal' data-target = '#modalCenter'>Create a new credit card</button>
+                            
                             <button id = 'simulateTransaction' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white mt-0 mt-lg-2 mt-sm-0' data-toggle = 'modal' data-target = '#modalCenter3'>Simulate a transaction</button>
                             
                             <div class = 'modal fade' id = 'modalCenter3' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
@@ -459,160 +460,160 @@
                 <?php } ?>
             </div>
 
-               <div class = 'col-lg border rounded offset-lg-0 mt-4 mt-lg-0 p-4 mb-2'>
+            <div id = 'hasSettings' class = 'col-lg border rounded offset-lg-0 mt-4 mt-lg-0 p-4 px-4 mb-2 mx-2'>
 
-                    <?php if ($hasSettings) { ?>
-                        <div class = 'modal fade' id = 'modalCenter' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
+                <?php if ($hasSettings) { ?>
+                    <div class = 'modal fade' id = 'modalCenter' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
+                        <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
+                            <div class = 'modal-content'>
+
+                                <div class = 'modal-header text-center'>
+                                    <h5 class = 'modal-title w-100' id = 'modalTitle'>Create a new credit card</h5>
+                                    <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
+                                        <span aria-hidden = 'true'>&times;</span>
+                                        </button>
+                                </div>
+
+                                <div class = 'modal-body'>
+                                
+                                        <div id = 'messageCreateCreditCard' class = 'text-center'></div>
+
+                                    <form>
+                                        <div class = 'form-group'>
+                                                <label for = 'currency'>Currency</label>
+                                                <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'createCardWithCurrency' name = 'currency'>
+                                                <?php
+                                                        foreach ($currencyWithImg as $curr) {
+                                                            echo "<option value = '" . $curr['id'] . "'>" . $curr['name'] . "</option>\n";
+                                                        }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class = 'modal-footer'>
+                                    <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
+                                    <button id = 'createCreditCard' type = 'button' class = 'btn btn-primary'>Create</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id = 'allCreditCards' class = 'container'>
+
+                        <div class = 'd-flex justify-content-around mb-4'>
+                            <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white active' id = 'details'>Details</button>
+                            <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white' id = 'transactions'>Transactions</button>
+                        </div>
+                    
+                        <hr>
+
+                        <div class = 'container currentDataPage' id = 'creditCardMainData'>
+                                <div class = 'text-white'>
+                                    <h5 class = 'font-weight-bold'>Account type</h5>
+                                    <h6 class = 'ml-2 font-italic' id = 'accountType'>N/A</h6>
+                                </div>
+
+                                <div class = 'text-white mt-4'>
+                                    <h5 class = 'font-weight-bold'>IBAN</h5>
+                                    <h6 class = 'ml-2 font-italic' id = 'IBAN'>N/A</h6>
+                                </div>
+
+                                <div class = 'text-white mt-4'>
+                                    <h5 class = 'font-weight-bold'>Currency</h5>
+                                    <h6 class = 'ml-2 font-italic' id = 'currency'>N/A</h6>
+                                </div>
+
+                                <hr>
+
+                                <div class = 'text-white mt-4'>
+                                    <h5 class = 'font-weight-bold'>Available balance</h5>
+                                    <h6 class = 'ml-2 font-italic' id = 'balance'>N/A</h6>
+                                </div>
+                        </div>
+
+                        <div class = 'row h-50 text-center' id = 'creditCardMainDataSpinner'>
+                            <div class = 'col-md-12 my-auto'>
+                                <div id = 'spinner' class = 'spinner-grow    text-primary' role = 'status'></div>
+                            </div>
+                        </div>
+
+                        
+                        <div class = 'container' id = 'creditCardTransactionsData'>
+                            <div id = 'missingTransactions' class = 'text-white text-center'>
+                            </div>
+
+                            <div class = 'text-white'>
+                                <ul id = 'transactionsList' class = 'list-group' style = 'max-height: 288px; overflow-y: scroll;'></ul>
+                            </div>
+                        </div>
+
+
+                        <div class = 'modal fade' id = 'modalCenter2' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
                             <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
                                 <div class = 'modal-content'>
 
                                     <div class = 'modal-header text-center'>
-                                        <h5 class = 'modal-title w-100' id = 'modalTitle'>Create a new credit card</h5>
+                                        <h5 class = 'modal-title w-100' id = 'modalTitle'>Transaction details</h5>
                                         <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
                                             <span aria-hidden = 'true'>&times;</span>
                                             </button>
                                     </div>
 
                                     <div class = 'modal-body'>
-                                    
-                                            <div id = 'messageCreateCreditCard' class = 'text-center'></div>
-
-                                        <form>
-                                            <div class = 'form-group'>
-                                                    <label for = 'currency'>Currency</label>
-                                                    <select data-live-search = 'true' data-live-search-style = 'startsWith' class = 'form-control selectpicker show-tick' id = 'createCardWithCurrency' name = 'currency'>
-                                                    <?php
-                                                            foreach ($currencyWithImg as $curr) {
-                                                                echo "<option value = '" . $curr['id'] . "'>" . $curr['name'] . "</option>\n";
-                                                            }
-                                                    ?>
-                                                </select>
+                                        <div class = 'container bg-light'>
+                                            <div class = 'row font-weight-bold'>
+                                                Transaction date
                                             </div>
-                                        </form>
+                                            
+                                            <div id = 'transactionDate' class = 'row font-italic'></div>
+                                        </div>
+
+                                        <div class = 'container bg-light mt-4'>
+                                            <div class = 'row font-weight-bold'>
+                                                Description
+                                            </div>
+
+                                            <div id = 'transactionDescription' class = 'row font-italic'></div>
+                                        </div>
+
+                                        <div class = 'container bg-light mt-4'>
+                                            <div class = 'row font-weight-bold'>
+                                                Amount
+                                            </div>
+
+                                            <div id = 'transactionAmount' class = 'row font-italic'></div>
+                                        </div>
+
+                                        <div class = 'container bg-light mt-4'>
+                                            <div class = 'row font-weight-bold'>
+                                                Balance
+                                            </div>
+
+                                            <div id = 'transactionBalance' class = 'row font-italic'></div>
+                                        </div>
+
+                                        <div class = 'container bg-light mt-4'>
+                                            <div class = 'row font-weight-bold'>
+                                                Transaction Reference
+                                            </div>
+
+                                            <div id = 'transactionReference' class = 'row font-italic'></div>
+                                        </div>
+
                                     </div>
 
                                     <div class = 'modal-footer'>
                                         <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
-                                        <button id = 'createCreditCard' type = 'button' class = 'btn btn-primary'>Create</button>
                                     </div>
 
                                 </div>
                             </div>
                         </div>
 
-                        <div id = 'allCreditCards' class = 'container mx-4'>
-
-                            <div class = 'd-flex justify-content-around mb-4'>
-                                <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white active' id = 'details'>Details</button>
-                                <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white' id = 'transactions'>Transactions</button>
-                            </div>
-                        
-                            <hr>
-
-                            <div class = 'container currentDataPage' id = 'creditCardMainData'>
-                                    <div class = 'text-white'>
-                                        <h5 class = 'font-weight-bold'>Account type</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'accountType'>N/A</h6>
-                                    </div>
-
-                                    <div class = 'text-white mt-4'>
-                                        <h5 class = 'font-weight-bold'>IBAN</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'IBAN'>N/A</h6>
-                                    </div>
-
-                                    <div class = 'text-white mt-4'>
-                                        <h5 class = 'font-weight-bold'>Currency</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'currency'>N/A</h6>
-                                    </div>
-
-                                    <hr>
-
-                                    <div class = 'text-white mt-4'>
-                                        <h5 class = 'font-weight-bold'>Available balance</h5>
-                                        <h6 class = 'ml-2 font-italic' id = 'balance'>N/A</h6>
-                                    </div>
-                            </div>
-
-                            <div class = 'row h-50 text-center' id = 'creditCardMainDataSpinner'>
-                                <div class = 'col-md-12 my-auto'>
-                                    <div id = 'spinner' class = 'spinner-grow    text-primary' role = 'status'></div>
-                                </div>
-                            </div>
-
-                            
-                            <div class = 'container' id = 'creditCardTransactionsData'>
-                                <div id = 'missingTransactions' class = 'text-white text-center'>
-                                </div>
-
-                                <div class = 'text-white'>
-                                    <ul id = 'transactionsList' class = 'list-group' style = 'max-height: 288px; overflow-y: scroll;'></ul>
-                                </div>
-                            </div>
-
-
-                            <div class = 'modal fade' id = 'modalCenter2' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
-                                <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
-                                    <div class = 'modal-content'>
-
-                                        <div class = 'modal-header text-center'>
-                                            <h5 class = 'modal-title w-100' id = 'modalTitle'>Transaction details</h5>
-                                            <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
-                                                <span aria-hidden = 'true'>&times;</span>
-                                                </button>
-                                        </div>
-
-                                        <div class = 'modal-body'>
-                                            <div class = 'container bg-light'>
-                                                <div class = 'row font-weight-bold'>
-                                                    Transaction date
-                                                </div>
-                                                
-                                                <div id = 'transactionDate' class = 'row font-italic'></div>
-                                            </div>
-
-                                            <div class = 'container bg-light mt-4'>
-                                                <div class = 'row font-weight-bold'>
-                                                    Description
-                                                </div>
-
-                                                <div id = 'transactionDescription' class = 'row font-italic'></div>
-                                            </div>
-
-                                            <div class = 'container bg-light mt-4'>
-                                                <div class = 'row font-weight-bold'>
-                                                    Amount
-                                                </div>
-
-                                                <div id = 'transactionAmount' class = 'row font-italic'></div>
-                                            </div>
-
-                                            <div class = 'container bg-light mt-4'>
-                                                <div class = 'row font-weight-bold'>
-                                                    Balance
-                                                </div>
-
-                                                <div id = 'transactionBalance' class = 'row font-italic'></div>
-                                            </div>
-
-                                            <div class = 'container bg-light mt-4'>
-                                                <div class = 'row font-weight-bold'>
-                                                    Transaction Reference
-                                                </div>
-
-                                                <div id = 'transactionReference' class = 'row font-italic'></div>
-                                            </div>
-
-                                        </div>
-
-                                        <div class = 'modal-footer'>
-                                            <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
+                    </div>
 
                         <div id = 'missingCreditCards' class = 'container text-center text-white'>
 
@@ -626,21 +627,20 @@
                             
                         </div>
 
-                    <?php } else { ?>
+                <?php } else { ?>
 
-                        <div class = 'container text-center text-white'>
-                            <h4>Uh-oh!</h4>
+                    <div class = 'container text-center text-white'>
+                        <h4>Uh-oh!</h4>
 
-                            <h6>It seems like you haven't put any information in the "Personal data" tab.</h6>
-                            <h6>Please fill in the needed data and wait for an administrator to approve the changes.</h6>
+                        <h6>It seems like you haven't put any information in the "Personal data" tab.</h6>
+                        <h6>Please fill in the needed data and wait for an administrator to approve the changes.</h6>
 
-                        </div>
+                    </div>
 
-                    <?php } ?>
+                <?php } ?>
 
-               </div>
+            </div>
 
-           </div>
        </div>
 
     </body>
