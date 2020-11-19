@@ -358,6 +358,10 @@ $(transactionSimAmount).on('input', () => {
 })
 
 const appendCreditCard = (data, active) => {
+
+    if (!creditCardsList)
+        return
+
     const a = document.createElement('a')
     $(a).attr('href', '#')
     $(a).addClass('creditCard list-group-item list-group-item-action list-group-item-info border rounded text-center mr-lg-0 mr-2')
@@ -432,8 +436,6 @@ const appendCreditCard = (data, active) => {
 
     else
         creditCardOnClick(a)
-
-
 }
 
 const creditCardOnClick = child => {
