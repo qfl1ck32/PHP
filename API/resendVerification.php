@@ -38,7 +38,8 @@
     $data = array(
         'username' => $username,
         'message' => 'activate your account',
-        'url' => $host . '/API/verify.php?emtoken=' . $token
+        'url' => $host . '/API/verify.php?emtoken=' . $token,
+        'type' => 'emailConfirmation'
     );
 
     $confirmationEmail = getConfirmationEmail($data);
