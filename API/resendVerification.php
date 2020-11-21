@@ -4,7 +4,7 @@
     include 'constants.php';
 
     if (!isset($_POST['email']))
-        die('Missing parameter.');
+        return Status(false, 'Missing parameter.');
 
     $data = sendQuery('select hex(id) as id, username from users where email = ?;', $_POST['email'])[0];
     $id = $data['id'];
@@ -12,14 +12,14 @@
     $exists = sendQuery('select count(*) as count from toConfirm where id = unhex(?);', $id);
 
     if (!isset($exists[0]))
-        die('Account already verified.');
+        return Status(false, 'Account already verified.');
 
     $currentTime = time();
     
     $expiry = sendQuery('select expiry from toConfirm where id = unhex(?);', $id);
 
     if (!isset($expiry[0]))
-        die('Account already verified.');
+        return Status(false, 'Account already verified.');
 
     $expiry = $expiry[0]['expiry'];
 
@@ -27,7 +27,7 @@
         $difference = $expiry - $currentTime;
         $time = gmdate("i:s", $difference);
         $arg = "'" . $_POST['email'] . "'";
-        die('There has already been sent a verification e-mail to you. Please <b><a href = "#" class="resendLink" onclick = "resendVerification(' . $arg . ')">try again</a></b> in ' . $time . '.');
+        return Status(false, 'There has already been sent a verification e-mail to you. Please <b><a href = "#" class="resendLink" onclick = "resendVerification(' . $arg . ')">try again</a></b> in ' . $time . '.');
     }
 
     $token = bin2hex(openssl_random_pseudo_bytes(64));
@@ -52,5 +52,5 @@
 
     sendVerificationEmail($data);
 
-    echo 'Done! A new link has been sent to your e-mail. :)';
+    return Status(true, 'Done! A new link has been sent to your e-mail. :)');
 ?>
