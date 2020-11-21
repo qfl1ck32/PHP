@@ -49,7 +49,8 @@
     $data = array(
         'username' => $username,
         'message' => 'reset your password',
-        'url' => $host . '/API/verify.php?pwtoken=' . $token
+        'url' => $host . '/API/verify.php?pwtoken=' . $token,
+        'type' => 'passwordReset'
     );
 
     $emailHTML = getConfirmationEmail($data);
