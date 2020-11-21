@@ -95,9 +95,15 @@ const checkPattern = password => {
 }
 
 const resendVerification = async email => {
-    const ans = await Promise.resolve($.post('./API/resendVerification.php', { email: email }))
+    const ans = JSON.parse(await Promise.resolve($.post('./API/resendVerification.php', { email: email })))
 
-    $(message).html(ans)
+    if (ans.status) {
+        $(message).removeClass('alert-danger').addClass('alert-success').html(ans.message)
+    }
+
+    else {
+        $(message).removeClass('alert-success').addClass('alert-danger').html(ans.message)
+    }
 }
 
 $(username).on('input', () => {
