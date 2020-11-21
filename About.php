@@ -126,7 +126,7 @@
                                 
                                 <h4 class = 'font-italic text-left mt-5'>Sign-up</h4>
                                 <hr>
-                                <h6 class = 'font-italic text-left mx-2'>All you need to do is - pass in a nickname, an e-mail and a password. Can it get more friendly?</h6>
+                                <h6 class = 'font-italic text-left mx-2'>It is as easy as it gets - all you need to do is - pass in a nickname, an e-mail and a password.</h6>
 
                                 <h4 class = 'font-italic text-left mt-5'>Sign-in</h4>
                                 <hr>
@@ -136,13 +136,13 @@
                                     <small class = 'small-text text-white'>Note!</small>
                                 </div>
 
-                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>If the e-mail doesn't get to you in 10 minutes, sign-in in order to be able to resend the e-mail.</h6>
+                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>If the e-mail doesn't get to you in 10 minutes, try to sign-in, so that you'll receive another verification e-mail.</h6>
                                 
                                 <div class = 'container text-left'>
                                     <small class = 'small-text text-white'>Another note!</small>
                                 </div>
                                 
-                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>After setting up your account for the first time, you should set up all the details about you in the "Personal Data" tab.</h6>
+                                <h6 class = 'font-italic text-left mx-2 alert alert-info'>After setting up your account for the first time, you should set up all the details about you in the "Personal data" tab.</h6>
 
                                 <h4 class = 'font-italic text-left mt-5'>Reset password</h4>
                                 <hr>
@@ -151,7 +151,7 @@
                             </div>
 
                             <div id = 'personalDataInfo' class = 'container'>
-                                <h4 class = 'font-italic text-left'>Personal data</h4>
+                                <h4 class = 'font-italic text-left mt-5'>Personal data</h4>
                                 <hr>
 
                                 <h6 class = 'font-italic text-left mx-2'>Here is where every piece of personal detail about you lays.</h6>
