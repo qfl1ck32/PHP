@@ -42,11 +42,15 @@
         <hr>
 
         <div class = 'container text-white'>
+          <?php if ($_POST['type'] == 'emailConfirmation') { ?>
           <h5 class = 'font-italic'>We are happy to inform you that we've received your account registration.</h5>
+          <?php } else { ?>
+          <h5 class = 'font-italic'>It seems like you asked for a password reset.</h5>
+          <?php } ?>
         </div>
 
         <div class = 'container text-white'>
-          <h5 class = 'font-italic'>Below is the link that you should click in order to confirm your account.</h5>
+          <h5 class = 'font-italic'>Below is the link that you should click in order to <?php if ($_POST['type'] == 'emailConfirmation') echo 'confirm your account'; else echo 'reset your password'; ?>.</h5>
         </div>
 
         <div class = 'container text-white'>
@@ -56,7 +60,7 @@
         <hr>
 
         <div class = 'container'>
-          <h5 class = 'font-italic'><a class = 'text-white' href = <?php echo $_POST['url']; ?>>Confirmation link</a></h5>
+          <h5 class = 'font-italic'><a class = 'text-white' href = <?php echo $_POST['url']; ?>><?php if ($_POST['type'] == 'emailConfirmation') echo 'Confirm'; else echo 'Reset'; ?></a></h5>
         </div>
       </div>
 
