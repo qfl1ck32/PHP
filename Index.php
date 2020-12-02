@@ -90,9 +90,5 @@
             ?>
         </div>
 
-        <div class = 'container bg-info'>
-            Hi there!
-        </div>
-
     </body>
 </html>
