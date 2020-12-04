@@ -99,7 +99,7 @@
             if (strlen($_POST['description']) > 32)
                 return Status(false, "Description too long.");
 
-            $_POST['description'] = strip_tags($_POST['description']);
+            $_POST['description'] = htmlspecialchars($_POST['description']);
 
             $checkIsHisIban = sendQuery('select balance from creditcards where IBAN = ? and id = unhex(?);', $_POST['fromIBAN'], $_SESSION['id']);
 
