@@ -8,7 +8,7 @@
     // $servername = 'localhost';
     // $username = 'root';
     // $password = '';
-    // $dbName = 'myBank';
+    // $dbName = 'hr';
 
     $conn = new mysqli($servername, $username, $password, $dbName);
 
