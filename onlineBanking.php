@@ -217,10 +217,21 @@
         if (!isset($data[0]))
             return Status(false, "The given IBAN either does not exist or it does not belong to any of your credit cards.");
 
-        $transactions = sendQuery('select date, type, description, amount, balance, hex(reference) as reference from transactions where iban = ? order by date desc;', $_POST['IBAN']);
-
         $data = $data[0];
 
+        if (!c('filterByDate')) {
+            $transactions = sendQuery('select date, type, description, amount, balance, hex(reference) as reference from transactions where iban = ? and date >= ? and date <= ? order by date desc;', $_POST['IBAN'], 
+                $_POST['fromDate'], date('Y-m-d', strtotime($_POST['toDate'] . ' +1 day')));
+
+            die(json_encode(array(
+                'status' => true,
+                'currency' => $data['currency'],
+                'transactions' => $transactions
+            )));
+        }
+
+        $transactions = sendQuery('select date, type, description, amount, balance, hex(reference) as reference from transactions where iban = ? order by date desc;', $_POST['IBAN']);
+            
         $currentCurrencyImg = (glob('Images/countryFlags/' . substr($data['currency'], 0, 2) . '.png'))[0];
 
         die(json_encode(array(
@@ -352,7 +363,7 @@
 
         </div>
       
-       <div id = 'mainDiv' class = 'container'>
+       <div id = 'mainDiv' class = 'container mb-4'>
 
             <div class = 'container d-flex justify-content-center text-light'>
                 <h1 class = 'display-5 font-italic'>Online Banking</h1>
@@ -505,7 +516,7 @@
 
                     <div id = 'allCreditCards' class = 'container'>
 
-                        <div class = 'd-flex justify-content-around mb-4'>
+                        <div class = 'd-flex justify-content-around mb-2'>
                             <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white active' id = 'details'>Details</button>
                             <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white' id = 'transactions'>Transactions</button>
                         </div>
@@ -538,17 +549,28 @@
 
                         <div class = 'row h-50 text-center' id = 'creditCardMainDataSpinner'>
                             <div class = 'col-md-12 my-auto'>
-                                <div id = 'spinner' class = 'spinner-grow    text-primary' role = 'status'></div>
+                                <div id = 'spinner' class = 'spinner-grow text-primary' role = 'status'></div>
                             </div>
                         </div>
 
                         
                         <div class = 'container' id = 'creditCardTransactionsData'>
+                            <div class = 'text-white'>
+                                <div id = 'filterTransactionsByDateDiv' class = 'form-group text-center'>
+                                    <div class = 'input-group'>
+                                        <input class = 'form-control mr-2' type = 'date' max = <?php echo date('Y-m-d'); ?> id = 'transactionsFromDate'>
+                                        <input class = 'form-control ml-2 mr-2' type = 'date' max = <?php echo date('Y-m-d'); ?> id = 'transactionsToDate'>
+                                        <button id = 'filterTransactionsByDate' type = 'button' class = 'btn btn-outline-primary btn-md border rounded-pill text-white ml-2'>Filter</button>
+                                    </div>
+                                </div>
+                                <ul id = 'transactionsList' class = 'list-group' style = 'max-height: 200px; overflow-y: scroll;'></ul>
+                            </div>
+
                             <div id = 'missingTransactions' class = 'text-white text-center'>
                             </div>
 
-                            <div class = 'text-white'>
-                                <ul id = 'transactionsList' class = 'list-group' style = 'max-height: 288px; overflow-y: scroll;'></ul>
+                            <div class = 'text-white text-center'>
+                                <button class = 'btn btn-outline-primary btn-md border rounded-pill text-white mt-4' id = 'exportTransactions' data-toggle = 'popover' data-placement = 'bottom'>Export transactions to e-mail</button>
                             </div>
                         </div>
 

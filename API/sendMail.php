@@ -32,10 +32,13 @@
         $mail->isHTML(true);
         $mail->Subject = $_POST['subject'];
         $mail->Body = $_POST['html'];
+        
         // $mail->AltBody
 
-        $mail->send();
+        if (isset($_POST['attachment']))
+            $mail->addStringAttachment($_POST['attachment'], $_POST['attachmentName']);
 
+        $mail->send();
     }
 
     catch (Exception $e) {

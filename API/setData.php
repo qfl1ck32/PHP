@@ -13,6 +13,9 @@
     if ($_POST['countryId'] == -1 || $_POST['stateId'] == -1 || $_POST['cityId'] == -1)
         return Status(false, "Invalid location.");
 
+    if ($_POST['dateOfBirth'] < date('Y-m-d', strtotime(date('Y-m-d') . '-100 years')) || $_POST['dateOfBirth'] > date('Y-m-d', strtotime(date('Y-m-d') . '-18 years')))
+        return Status(false, 'Incorrect birthday.');
+
     $image = file_get_contents($_FILES['file']['tmp_name']);
     $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
 

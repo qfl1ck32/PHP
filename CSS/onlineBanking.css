@@ -46,3 +46,7 @@
 #simulateTransaction {
     display: none;
 }
+
+.popover {
+    max-width: 32px;
+}

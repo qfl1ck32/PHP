@@ -66,8 +66,16 @@ const   createCreditCard = get('createCreditCard'),
 
 
         allCreditCards = get('allCreditCards'),
-        noCreditCards = get('noCreditCards')
+        noCreditCards = get('noCreditCards'),
 
+        filterTransactionsByDateDiv = get('filterTransactionsByDateDiv'),
+
+        transactionsFromDate = get('transactionsFromDate'),
+        transactionsToDate = get('transactionsToDate'),
+
+        filterTransactionsByDateButton = get('filterTransactionsByDate'),
+
+        exportTransactions = get('exportTransactions')
 
 $(createCreditCard).click(async () => {
     $(createCreditCard).attr('disabled', true)
@@ -443,6 +451,9 @@ const creditCardOnClick = child => {
 
     $(child).on('click', async (e, arg) => {
 
+        $(transactionsFromDate).val('')
+        $(transactionsToDate).val('')
+
         const IBAN = currentIBAN
 
         $('[class*="currentDataPage"]').hide()
@@ -491,120 +502,168 @@ const creditCardOnClick = child => {
             $(transactionSimAmount).trigger('input')
         }
 
-        const transactions = data.transactions
-        
-        $(transactionsList).empty()
-        
-        if (!transactions.length)
-            return $(missingTransactions).html('You have no transactions for this credit card.').fadeIn('slow')
-        
-        $(missingTransactions).hide()
-        $(transactionsList).hide()
-
-        let lastDate
-        let writeDate = true
-
-        try {
-            lastDate = new Date(transactions[0].date).getDate()
-        }
-
-        catch (e) {
-
-        }
-
-        for (const transaction of transactions) {
-
-            const newTransaction = document.createElement('a')
-            newTransaction.setAttribute('data-toggle', 'modal')
-            newTransaction.setAttribute('data-target', '#modalCenter2')
-            newTransaction.setAttribute('href', '#')
-            newTransaction.className = 'list-group-item list-group-item-action list-group-item-info border rounded text-center mb-2'
-            
-            const mainDiv = document.createElement('div')
-            $(mainDiv).addClass('row align-items-center')
-
-                const col0 = document.createElement('div')
-                $(col0).addClass = 'col-0';
-
-                    const icon = document.createElement('i')
-                    $(icon).addClass('fas fa-' + (transaction.type.indexOf('Received') != -1 ? 'plus' : 'minus') + '-circle')
-                
-                col0.appendChild(icon)
-                mainDiv.appendChild(col0)
-
-                const colSnd = document.createElement('div')
-                $(colSnd).addClass('col')
-
-                    const fstRow = document.createElement('div')
-                    $(fstRow).addClass('row text-left')
-                    
-                        const nxtCol = document.createElement('div')
-                        $(nxtCol).addClass('col')
-
-                            const small = document.createElement('small')
-                            $(small).html(transaction.type)
-
-                        nxtCol.appendChild(small)
-                    
-                    fstRow.appendChild(nxtCol);
-                    colSnd.appendChild(fstRow)
-
-                    const sndRow = document.createElement('div')
-                    $(sndRow).addClass('row text-left')
-
-                        const nxtCol2 = document.createElement('div')
-                        $(nxtCol2).addClass('col font-weight-bold font-italic')
-
-                            const small2 = document.createElement('small')
-                            $(small2).html(transaction.amount + ' ' + data.currency)
-
-                        nxtCol2.appendChild(small2)
-                    
-                    sndRow.appendChild(nxtCol2)
-                    colSnd.appendChild(sndRow)
-
-                mainDiv.appendChild(colSnd)
-            
-
-            newTransaction.appendChild(mainDiv)
-
-            if (new Date(transaction.date).getDate() < lastDate) {
-                lastDate = new Date(transaction.date).getDate()
-                const hr = document.createElement('div')
-                $(hr).addClass('border-top my-3')
-                transactionsList.appendChild(hr)
-                writeDate = true
-            }
-
-            newTransaction.addEventListener('click', () => {
-                $(transactionDate).html(transaction.date)
-                $(transactionDescription).html(transaction.description)
-                $(transactionAmount).html(transaction.amount + ' ' + data.currency)
-                $(transactionBalance).html(transaction.balance + ' ' + data.currency)
-                $(transactionReference).html(transaction.reference)
-            })
-
-            if (writeDate) {
-                const date = document.createElement('div')
-                $(date).addClass('text-left text-white mb-2')
-                    const small = document.createElement('small')
-
-                    const data = new Date(transaction.date)
-
-                    $(small).html(data.getUTCFullYear() + '-' + (data.getUTCMonth() + 1) + '-' + data.getDate())
-
-                    date.appendChild(small)
-
-                transactionsList.appendChild(date)
-                writeDate = false
-            }
-
-            transactionsList.appendChild(newTransaction)
-        }
-
-        $(transactionsList).fadeIn('slow')
+        addTransactions(data, false)
     })
 }
+
+const addTransactions = (data, isFilter) => {
+
+    const transactions = data.transactions
+
+    $(transactionsList).empty()
+        
+    if (!transactions.length) {
+        $(exportTransactions).hide()
+        if (isFilter)
+            return $(missingTransactions).html('There are no transactions between the given dates.').hide().fadeIn('slow')
+    
+        return $(filterTransactionsByDateDiv).hide(), $(missingTransactions).html('You have no transactions for this credit card.').fadeIn('slow')
+    }
+    
+    $(missingTransactions).hide()
+    $(transactionsList).hide()
+
+    let lastDate
+    let writeDate = true
+
+    try {
+        lastDate = new Date(transactions[0].date).getDate()
+    }
+
+    catch (e) {
+
+    }
+
+    for (const transaction of transactions) {
+
+        const newTransaction = document.createElement('a')
+        newTransaction.setAttribute('data-toggle', 'modal')
+        newTransaction.setAttribute('data-target', '#modalCenter2')
+        newTransaction.setAttribute('href', '#')
+        newTransaction.className = 'list-group-item list-group-item-action list-group-item-info border rounded text-center mb-2'
+        
+        const mainDiv = document.createElement('div')
+        $(mainDiv).addClass('row align-items-center')
+
+            const col0 = document.createElement('div')
+            $(col0).addClass = 'col-0';
+
+                const icon = document.createElement('i')
+                $(icon).addClass('fas fa-' + (transaction.type.indexOf('Received') != -1 ? 'plus' : 'minus') + '-circle')
+            
+            col0.appendChild(icon)
+            mainDiv.appendChild(col0)
+
+            const colSnd = document.createElement('div')
+            $(colSnd).addClass('col')
+
+                const fstRow = document.createElement('div')
+                $(fstRow).addClass('row text-left')
+                
+                    const nxtCol = document.createElement('div')
+                    $(nxtCol).addClass('col')
+
+                        const small = document.createElement('small')
+                        $(small).html(transaction.type)
+
+                    nxtCol.appendChild(small)
+                
+                fstRow.appendChild(nxtCol);
+                colSnd.appendChild(fstRow)
+
+                const sndRow = document.createElement('div')
+                $(sndRow).addClass('row text-left')
+
+                    const nxtCol2 = document.createElement('div')
+                    $(nxtCol2).addClass('col font-weight-bold font-italic')
+
+                        const small2 = document.createElement('small')
+                        $(small2).html(transaction.amount + ' ' + data.currency)
+
+                    nxtCol2.appendChild(small2)
+                
+                sndRow.appendChild(nxtCol2)
+                colSnd.appendChild(sndRow)
+
+            mainDiv.appendChild(colSnd)
+        
+
+        newTransaction.appendChild(mainDiv)
+
+        if (new Date(transaction.date).getDate() < lastDate) {
+            lastDate = new Date(transaction.date).getDate()
+            const hr = document.createElement('div')
+            $(hr).addClass('border-top my-3')
+            transactionsList.appendChild(hr)
+            writeDate = true
+        }
+
+        newTransaction.addEventListener('click', () => {
+            $(transactionDate).html(transaction.date)
+            $(transactionDescription).html(transaction.description)
+            $(transactionAmount).html(transaction.amount + ' ' + data.currency)
+            $(transactionBalance).html(transaction.balance + ' ' + data.currency)
+            $(transactionReference).html(transaction.reference)
+        })
+
+        if (writeDate) {
+            const date = document.createElement('div')
+            $(date).addClass('text-left text-white mb-2')
+                const small = document.createElement('small')
+
+                const data = new Date(transaction.date)
+
+                $(small).html(data.getUTCFullYear() + '-' + (data.getUTCMonth() + 1) + '-' + data.getDate())
+
+                date.appendChild(small)
+
+            transactionsList.appendChild(date)
+            writeDate = false
+        }
+
+        transactionsList.appendChild(newTransaction)
+    }
+
+    $(transactionsList).fadeIn('slow')
+    $(filterTransactionsByDateDiv).fadeIn('slow')
+    $(exportTransactions).fadeIn('slow')
+}
+
+$(filterTransactionsByDateButton).on('click', async () => {
+    const fromDate = $(transactionsFromDate).val(), toDate = $(transactionsToDate).val()
+
+    const IBAN = $('.creditCard.active').find('.IBAN').html()
+
+    $(filterTransactionsByDateButton).attr('disabled', true)
+
+    const data = JSON.parse(await Promise.resolve($.post('/onlineBanking.php', { IBAN: IBAN, filterByDate: true, fromDate: fromDate, toDate: toDate })))
+
+    addTransactions(data, true)
+
+    $(filterTransactionsByDateButton).attr('disabled', false)
+})
+
+$(exportTransactions).on('click', async () => {
+    const fromDate = $(transactionsFromDate).val(), toDate = $(transactionsToDate).val()
+    const IBAN = $('.creditCard.active').find('.IBAN').html()
+
+    $(exportTransactions).attr('data-content', 'Loading...')
+
+    $(exportTransactions).attr('disabled', true)
+
+    const ans = JSON.parse(await Promise.resolve($.post('/exportTransactions.php', { IBAN: IBAN, fromDate: fromDate, toDate: toDate })))
+
+    $(exportTransactions).attr('data-content', ans.message)
+
+    $(exportTransactions).popover('show')
+    $(exportTransactions).attr('disabled', false)
+
+    await new Promise(resolve => {
+        setTimeout(resolve, 2500)
+    })
+
+    $(exportTransactions).popover('hide')
+})
 
 
 window.onload = async () => {
@@ -638,3 +697,7 @@ window.onload = async () => {
     $(creditCardsList).children()[0].click()
 
 }
+
+$(function () {
+    $('[data-toggle="popover"]').popover()
+})

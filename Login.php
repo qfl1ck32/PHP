@@ -79,6 +79,7 @@
             $_SESSION['isLogged'] = true;
             $_SESSION['id'] = $id;
             $_SESSION['username'] = $username;
+            $_SESSION['email'] = $email;
             
             return Status(true);
         }

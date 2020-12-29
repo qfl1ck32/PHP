@@ -155,7 +155,7 @@
 
                 <div class = "form-group">
                     <label for = "dateOfBirth">Date of birth: </label>
-                    <input <?php trySet('dateOfBirth'); ?> autocomplete = "off" id = 'dateOfBirth' class = "form-control" type = "date" name = "dateOfBirth">
+                    <input <?php trySet('dateOfBirth'); ?> autocomplete = "off" id = 'dateOfBirth' min = <?php echo date('Y-m-d', strtotime(date('Y-m-d') . '-100 years')); ?> max = <?php echo date('Y-m-d', strtotime(date('Y-m-d') . '-18 years')); ?> class = "form-control" type = "date" name = "dateOfBirth">
                 </div>
 
                 <div class = "form-group">
