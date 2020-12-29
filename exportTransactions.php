@@ -1,6 +1,6 @@
 <?php
 
-    require '/app/vendor/autoload.php';
+    require 'app/vendor/autoload.php';
     include 'API/mysql.php';
     include 'API/functions.php';
 
