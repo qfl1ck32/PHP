@@ -37,12 +37,12 @@
 
         if (!c('getUsers')) {
 
-            $users = sendQuery('select hex(ID) ID, username, email from users where id != unhex(?);', $_SESSION['id']);
+            $users = sendQuery('select hex(ID) ID, (select count(p.id) from pendingpersonaldata p where p.id = u.id) hasPending, username, email from users u where id != unhex(?) order by hasPending DESC;', $_SESSION['id']);
 
             $cc = array();
 
             foreach ($users as $user) {
-                $cc[] = array('ID' => $user['ID'], 'username' => $user['username'], 'email' => $user['email']);
+                $cc[] = array('ID' => $user['ID'], 'hasPending' => $user['hasPending'], 'username' => $user['username'], 'email' => $user['email']);
             }
 
             return Status(true, $cc);

@@ -546,6 +546,9 @@ const appendUser = (data, active) => {
     $(a).attr('href', '#')
     $(a).addClass('user list-group-item list-group-item-action list-group-item-info border rounded text-center mr-2')
 
+    if (data.hasPending)
+        $(a).addClass('bg-warning')
+
     if (active)
         $(a).addClass('active')
     else
@@ -952,17 +955,23 @@ const loadPage = async ID => {
 }
 
 $(acceptPersonalDataChange).on('click', async () => {
-    const ID = $('.user.active').find('.ID').html()
+    const user = $('.user.active')
+    const ID = $(user).find('.ID').html()
     
     await Promise.resolve($.post('/Administrate.php', { ID: ID, acceptChange: true }))
     await loadPersonalData(ID)
+
+    $(user).removeClass('bg-warning')
 })
 
 $(rejectPersonalDataChange).on('click', async () => {
-    const ID = $('.user.active').find('.ID').html()
+    const user = $('.user.active')
+    const ID = $(user).find('.ID').html()
     
     await Promise.resolve($.post('/Administrate.php', { ID: ID, rejectChange: true }))
     await loadPersonalData(ID)
+
+    $(user).removeClass('bg-warning')
 })
 
 const putPersonalData = (type, data) => {
