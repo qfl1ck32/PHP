@@ -90,5 +90,9 @@
             ?>
         </div>
 
+        <div class = 'container-fluid text-center'>
+            <img src = 'Images/Logo.png' class = 'img-fluid'>
+        </div>
+
     </body>
 </html>
