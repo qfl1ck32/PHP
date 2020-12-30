@@ -151,7 +151,7 @@
                             </div>
 
                             <div id = 'personalDataInfo' class = 'container'>
-                                <h4 class = 'font-italic text-left mt-5'>Personal data</h4>
+                                <h4 class = 'font-italic text-left'>Personal data</h4>
                                 <hr>
 
                                 <h6 class = 'font-italic text-left mx-2'>Here is where every piece of personal detail about you lays.</h6>
