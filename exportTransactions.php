@@ -25,7 +25,11 @@
         $fromDate = $_POST['fromDate'];
         $toDate = $_POST['toDate'];
 
-        $data = sendQuery('select ID from creditcards where id = unhex(?) and iban = ?', $_SESSION['id'], $IBAN);
+        if (isset($_POST['ID']))
+            $data = sendQuery('select ID from creditcards where id = unhex(?) and iban = ?', $_POST['ID'], $IBAN);
+    
+        else
+            $data = sendQuery('select ID from creditcards where id = unhex(?) and iban = ?', $_SESSION['id'], $IBAN);
 
         if (!isset($data[0]))
             return Status(false, "The given IBAN either does not exist or it does not belong to any of your credit cards.");
@@ -73,8 +77,13 @@
 
         $attachmentName = $IBAN . '.xls';
 
+        if (isset($_POST['ID']))
+            $email = sendQuery('select email from users where id = unhex(?);', $_POST['ID'])[0]['email'];
+        else
+            $email = $_SESSION['email'];
+
         $data = array(
-            'email' => $_SESSION['email'],
+            'email' => $email,
             'subject' => 'Transactions for ' . $IBAN . ($fromDate == '' && $toDate == '' ? '' : ' | ' . $fromDate . ' - ' . $toDate),
             'html' => 'A file containing the requested transactions has been attached.
                         Have a beautiful day!',

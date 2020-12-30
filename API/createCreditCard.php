@@ -21,6 +21,11 @@
     if (c('currencyId'))
         return Status(false, "Missing parameters.");
 
+    $hasData = sendQuery('select count(ID) as c from personaldata where id = unhex(?);', (isset($_POST['ID']) ? $_POST['ID'] : $_SESSION['id']))[0]['c'];
+
+    if (!$hasData)
+        return Status(false, "Missing personal data.");
+
     $chosenCurrency = sendQuery('select name from currencies where id = ?;', $_POST['currencyId']);
 
     if (!isset($chosenCurrency[0]))
@@ -28,7 +33,10 @@
 
     $chosenCurrency = $chosenCurrency[0]['name'];
 
-    $currentCountry = sendQuery('select sortname, name from countries where id = (select countryId from personaldata where id = unhex(?));', $_SESSION['id'])[0];
+    if (isset($_POST['ID']))
+        $currentCountry = sendQuery('select sortname, name from countries where id = (select countryId from personaldata where id = unhex(?));', $_POST['ID'])[0];
+    else
+        $currentCountry = sendQuery('select sortname, name from countries where id = (select countryId from personaldata where id = unhex(?));', $_SESSION['id'])[0];
 
     $countryCode = $currentCountry['sortname'];
     $currentCountry = $currentCountry['name'];
@@ -38,17 +46,27 @@
     $sortCode = $chosenCurrency . 'CRT';
     $accountNumber = "";
 
-    $accountNumberDB = sendQuery('select substring(iban, 15, 8) as accNum from creditcards where id = unhex(?)', $_SESSION['id']);
+    if (isset($_POST['ID']))
+        $accountNumberDB = sendQuery('select substring(iban, 15, 8) as accNum from creditcards where id = unhex(?)', $_POST['ID']);
+    else
+        $accountNumberDB = sendQuery('select substring(iban, 15, 8) as accNum from creditcards where id = unhex(?)', $_SESSION['id']);
 
     if (sizeof($accountNumberDB)) {
 
-        $countOfCurrentCurrency = sendQuery('select count(*) as c from creditcards where id = unhex(?) and substring(iban, 9, 3) = ?;', $_SESSION['id'], $chosenCurrency);
+        if (isset($_POST['ID']))
+            $countOfCurrentCurrency = sendQuery('select count(*) as c from creditcards where id = unhex(?) and substring(iban, 9, 3) = ?;', $_POST['ID'], $chosenCurrency);
+        else
+            $countOfCurrentCurrency = sendQuery('select count(*) as c from creditcards where id = unhex(?) and substring(iban, 9, 3) = ?;', $_SESSION['id'], $chosenCurrency);
 
         if ($countOfCurrentCurrency[0]['c'] == 3)
             return Status(false, "You have reached the maximum amount of credit cards for " . $chosenCurrency . ".");
 
         $accountNumberDB = $accountNumberDB[0]['accNum'];
-        $hasThisCurrency = sendQuery('select max(substring(iban, 23)) as ib from creditcards where id = unhex(?) and substring(iban, 9, 3) = ?', $_SESSION['id'], $chosenCurrency)[0]['ib'];
+
+        if (isset($_POST['ID']))
+            $hasThisCurrency = sendQuery('select max(substring(iban, 23)) as ib from creditcards where id = unhex(?) and substring(iban, 9, 3) = ?', $_POST['ID'], $chosenCurrency)[0]['ib'];
+        else
+            $hasThisCurrency = sendQuery('select max(substring(iban, 23)) as ib from creditcards where id = unhex(?) and substring(iban, 9, 3) = ?', $_SESSION['id'], $chosenCurrency)[0]['ib'];
         
         if (!$hasThisCurrency) {
             $accountNumber = $accountNumberDB . "01";
@@ -110,8 +128,11 @@
 
     $IBAN = $countryCode . $checkSum . $bankIdentifier . $sortCode . $accountNumber;
 
+    if (isset($_POST['ID']))
+        sendQuery('insert into creditcards values (unhex(?), ?, "Current Account", ?, 10);', $_POST['ID'], $IBAN, $_POST['currencyId']);
 
-    sendQuery('insert into creditcards values (unhex(?), ?, "Current Account", ?, 10);', $_SESSION['id'], $IBAN, $_POST['currencyId']);
+    else
+        sendQuery('insert into creditcards values (unhex(?), ?, "Current Account", ?, 10);', $_SESSION['id'], $IBAN, $_POST['currencyId']);
 
     $currency = sendQuery('select name from currencies where id = ?;', $_POST['currencyId'])[0]['name'];
 

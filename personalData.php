@@ -219,10 +219,6 @@
 
                 <hr>
 
-                <div class = 'container alert alert-warning border rounded-pill text-center mb-4'>
-                    <small>For testing purposes, the manual approval will be skipped.</small>
-                </div>
-
             </div>
         </div>
     </body>

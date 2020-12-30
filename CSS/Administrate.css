@@ -1,0 +1,64 @@
+.bg-img {
+    background-image: url('../Images/Background.png');
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    overflow-x: hidden;
+}
+
+@media screen and (min-width: 992px) {
+    small {
+        overflow-wrap: break-word;
+        word-break: break-all;
+    }
+}
+
+::-webkit-scrollbar {
+    background: transparent
+}
+
+::-webkit-scrollbar-corner {
+    background: rgba(0, 0, 0, 0);
+}
+
+.pre {
+    white-space: pre;
+}
+
+#creditCardTransactionsData {
+    display: none;
+}
+
+#mainDiv {
+    display: none;
+}
+
+#missingTransactions {
+    display: none;
+}
+
+#spinner {
+    height: 4vw;
+    width: 4vw;
+}
+
+#simulateTransaction {
+    display: none;
+}
+
+.popover {
+    max-width: 32px;
+}
+
+#creditCardModifyData {
+    display: none;
+}
+
+#personalDataDiv {
+    display: none;
+}
+
+#missingCreditCards, #allCreditCards, #missingPersonalData {
+    display: none;
+}
