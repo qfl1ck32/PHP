@@ -37,7 +37,7 @@
 
         if (!c('getUsers')) {
 
-            $users = sendQuery('select hex(ID) ID, (select count(p.id) from pendingpersonaldata p where p.id = u.id) hasPending, username, email from users u where id != unhex(?) order by hasPending DESC;', $_SESSION['id']);
+            $users = sendQuery('select hex(ID) ID, (select count(p.id) from pendingpersonaldata p where p.id = u.id) hasPending, username, email from users u order by hasPending DESC;');
 
             $cc = array();
 
