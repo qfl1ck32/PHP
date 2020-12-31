@@ -21,6 +21,11 @@
 
         if (!c('getCards')) {
 
+            $hasPersonalData = sendQuery('select ID from personaldata where id = unhex(?);', $_POST['ID']);
+            
+            if (!sizeof($hasPersonalData))
+                return Status(-1, 0);
+
             $creditCards = sendQuery('select iban, type, (select name from currencies where id = currencyId) currency, balance from creditCards where id = unhex(?);', $_POST['ID']);
 
             if (!sizeof($creditCards))
@@ -284,6 +289,12 @@
             return Status(true, "Success");
         }
 
+        if (!c('deleteIBAN')) {
+            sendQuery('delete from creditcards where IBAN = ?;', $_POST['deleteIBAN']);
+
+            return Status(true, "Successfully deleted.");
+        }
+
         $data = sendQuery('select type, (select name from currencies where id = currencyId) currency, balance from creditcards where id = unhex(?) and iban = ?', $_POST['ID'], $_POST['IBAN']);
 
         if (!isset($data[0]))
@@ -446,9 +457,9 @@
                     <ul id = 'creditCardsList' style = 'max-height: 288px; overflow-y: scroll;' class = 'list-group flex-row pb-2 pr-2'></ul>
 
                     <div class = 'container pt-4 text-center'>
-                        <button id = 'createCard' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white' data-toggle = 'modal' data-target = '#modalCenter'>Create a new credit card</button>
+                        <button id = 'createCard' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white mb-2' data-toggle = 'modal' data-target = '#modalCenter'>Create a new credit card</button>
                         
-                        <button id = 'simulateTransaction' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white' data-toggle = 'modal' data-target = '#modalCenter3'>Simulate a transaction</button>
+                        <button id = 'simulateTransaction' class = 'btn btn-outline-primary btn-sm border rounded-pill text-white mb-2' data-toggle = 'modal' data-target = '#modalCenter3'>Simulate a transaction</button>
                         
                         <div class = 'modal fade' id = 'modalCenter3' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
                             <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
@@ -543,8 +554,8 @@
 
         <div class = 'container mb-2'>
                 <div class = 'input-group d-flex justify-content-between'>
-                    <button associatedPage = 'bankData' id = 'switchToBank' class = 'switchContentButton btn btn-outline-primary btn-sm border rounded-pill text-white active'>Bank</button>
-                    <button associatedPage = 'personalDataDiv' id = 'switchToPersonal' class = 'switchContentButton btn btn-outline-primary btn-sm border rounded-pill text-white'>Personal</button>
+                    <button associatedPage = 'bankData' id = 'switchToBank' class = 'switchContentButton btn btn-outline-primary btn-sm border rounded-pill text-white active mt-2'>Bank</button>
+                    <button associatedPage = 'personalDataDiv' id = 'switchToPersonal' class = 'switchContentButton btn btn-outline-primary btn-sm border rounded-pill text-white mt-2'>Personal</button>
                 </div>
              </div>
 
@@ -651,12 +662,16 @@
 
                     <div class = 'container' id = 'creditCardModifyData'>
                         <div class = 'text-white'>
-                           <div class = 'input-group'>
-                               <input class = 'form-control' id = 'modifyBalance'>
-                               <button id = 'modifyBalanceButton' type = 'button' class = 'btn btn-outline-primary btn-md border rounded-pill text-white ml-2'>Modify balance</button>
-                           </div>
+                            <div class = 'input-group'>
+                                <input class = 'form-control' id = 'modifyBalance'>
+                                <button id = 'modifyBalanceButton' type = 'button' class = 'btn btn-outline-primary btn-md border rounded-pill text-white ml-2'>Modify balance</button>
+                            </div>
+                            
+                            <div id = 'modifyAlert' class = 'alert text-center mt-2'></div>
 
-                           <div id = 'modifyAlert' class = 'alert text-center mt-2'></div>
+                            <div class = 'container text-center'>
+                                <button id = 'deleteBankAccount' type = 'button' class = 'btn btn-outline-primary btn-md border rounded-pill text-white mt-2'  data-toggle = 'modal' data-target = '#modalCenterDelete'>Delete bank account</button>
+                            </div>
                         </div>
                     </div>
 
@@ -717,6 +732,29 @@
 
                                 <div class = 'modal-footer'>
                                     <button id = 'closeModal' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class = 'modal fade' id = 'modalCenterDelete' tabindex = '-1' role = 'dialog' aria-labelledby = 'modalCenterTitle' aria-hidden = 'true'>
+                        <div class = 'modal-dialog modal-dialog-centered' role = 'document'>
+                            <div class = 'modal-content'>
+                                <div class = 'modal-header text-center'>
+                                        <h5 class = 'modal-title w-100' id = 'modalTitle'>Delete credit card</h5>
+                                        <button type = 'button' class = 'close' data-dismiss = 'modal' aria-label = 'Close'>
+                                            <span aria-hidden = 'true'>&times;</span>
+                                            </button>
+                                </div>
+
+                                <div class = 'modal-body'>
+                                    <div id = 'creditCardToDelete'></div>
+                                </div>
+
+                                <div class = 'modal-footer'>
+                                    <button id = 'confirmModalDelete' type = 'button' class = 'btn btn-primary' data-dismiss = 'modal'>Confirm</button> 
+                                    <button id = 'closeModalDelete' type = 'button' class = 'btn btn-secondary' data-dismiss = 'modal'>Close</button>
                                 </div>
 
                             </div>

@@ -102,7 +102,10 @@ const   createCreditCard = get('createCreditCard'),
         personalDataNew = get('personalDataNew'),
 
         rejectPersonalDataChange = get('rejectPersonalDataChange'),
-        acceptPersonalDataChange = get('acceptPersonalDataChange')
+        acceptPersonalDataChange = get('acceptPersonalDataChange'),
+
+        deleteBankAccount = get('deleteBankAccount'),
+        confirmModalDelete = get('confirmModalDelete')
 
 $(createCreditCard).click(async () => {
     $(createCreditCard).attr('disabled', true)
@@ -113,7 +116,7 @@ $(createCreditCard).click(async () => {
 
     if (ans.status == true) {
         const ID = $('.user.active').find('.ID').html()
-        appendCreditCard(ans.arg0, false, ID)
+        appendCreditCard(ans.arg0, true, ID)
     }
 
     if ($(messageCreateCreditCard).html() != ans.message || ans.status == true) {
@@ -535,6 +538,9 @@ const appendCreditCard = (data, active, ID) => {
     }
 
     creditCardOnClick(a, ID)
+
+    if (active)
+        $(a).trigger('click')
 }
 
 const appendUser = (data, active) => {
@@ -717,12 +723,17 @@ const addTransactions = (data, isFilter) => {
     $(transactionsList).empty()
         
     if (!transactions.length) {
+
+        $(creditCardTransactionsData).css('height', 'auto')
+
         $(exportTransactions).hide()
         if (isFilter)
             return $(missingTransactions).html('There are no transactions between the given dates.').hide().fadeIn('slow')
     
         return $(filterTransactionsByDateDiv).hide(), $(missingTransactions).html('You have no transactions for this credit card.').fadeIn('slow')
     }
+
+    $(creditCardTransactionsData).css('height', $(creditCardMainData).height() + ($('.ccDataButtons.active').attr('id') == 'details' ? 8 : 0))
     
     $(missingTransactions).hide()
     $(transactionsList).hide()
@@ -915,16 +926,17 @@ const loadPage = async ID => {
                 appendCreditCard(creditCard, false, ID)
             }
             $(creditCardsList).children()[0].click()
-            $(creditCardTransactionsData).css('height', $(creditCardMainData).height() + 8)
         }
 
         else {
 
-            if (!creditCards.status)
+            if (creditCards.status == -1)
                 $(missingPersonalData).fadeIn('slow')
 
-            else
+            else {
                 $('#missingCreditCards').fadeIn('slow')
+                $(missingPersonalData).hide()
+            }
 
             $(simulateTransaction).hide()
             $('#allCreditCards').hide()
@@ -932,7 +944,7 @@ const loadPage = async ID => {
         }
 
 
-        await loadPersonalData(ID)
+        loadPersonalData(ID)
 
 
         $('#mainDiv').fadeIn('slow')
@@ -947,11 +959,8 @@ const loadPage = async ID => {
             }
         }
     }
-
-    const children = $(creditCardsList).children()
-
-    if (!$(children).length)
-        return $('#bankData').removeClass('mx-2')
+    
+        //$(creditCardModifyData).css('height', $(creditCardMainData).height() + 8)
 }
 
 $(acceptPersonalDataChange).on('click', async () => {
@@ -959,7 +968,7 @@ $(acceptPersonalDataChange).on('click', async () => {
     const ID = $(user).find('.ID').html()
     
     await Promise.resolve($.post('/Administrate.php', { ID: ID, acceptChange: true }))
-    await loadPersonalData(ID)
+    await loadPage(ID)
 
     $(user).removeClass('bg-warning')
 })
@@ -986,6 +995,21 @@ const putPersonalData = (type, data) => {
     $('#image' + type).attr('src', data.image)
 
 }
+
+$(deleteBankAccount).on('click', () => {
+    const IBAN = $('.creditCard.active').find('.IBAN').html()
+    $('#creditCardToDelete').html('You are about to close the credit card with associated IBAN ' + IBAN + '.')
+})
+
+$(confirmModalDelete).on('click', async () => {
+    const IBAN = $('.creditCard.active').find('.IBAN').html()
+
+    const ans = await Promise.resolve($.post('/Administrate.php', { deleteIBAN: IBAN }))
+
+    $('#modalCenterDelete').modal('hide')
+
+    loadPage($('.user.active').find('.ID').html())
+})
 
 window.onload = async () => {
 
