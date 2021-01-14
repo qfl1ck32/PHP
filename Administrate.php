@@ -255,6 +255,10 @@
                 $personalData = $personalData[0];
                 if ($image = @file_get_contents("Images/personalDataImages/" . $_POST['ID'] . ".png"))
                     $personalData['image'] = 'data:image/jpg;base64,' . base64_encode($image);
+                else {
+                    $image = @file_get_contents("Images/pendingPersonalDataimages/" . $_POST['ID'] . ".png");
+                    $personalData['image'] = 'data:image/jpg;base64,' . base64_encode($image);
+                }
             }
             
             else
